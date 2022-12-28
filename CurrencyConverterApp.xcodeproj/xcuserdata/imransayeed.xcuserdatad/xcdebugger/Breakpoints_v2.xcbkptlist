@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "AE5944B5-7CFC-4857-B9AF-5673EC781017"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F1E13243-57C5-45A3-81C6-2FE8E4B63209"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Services/APIService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "125"
+            endingLineNumber = "125"
+            landmarkName = "getCurrencies()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3F62642F-9017-46D0-B877-87E6345718D5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Scenes/CurrencyRateViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "26"
+            endingLineNumber = "26"
+            landmarkName = "fetchLatestCurrencies()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1B38ED45-CCE4-417F-9286-25075D634211"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Scenes/CurrencyRateViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
+            landmarkName = "fetchLatestCurrencies()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "1B38ED45-CCE4-417F-9286-25075D634211 - c843a325c6324e6c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (CurrencyConverterApp.LatestCurrencies) -&gt; () in CurrencyConverterApp.CurrencyRateViewModel.fetchLatestCurrencies() -&gt; ()"
+                  moduleName = "CurrencyConverterApp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/imransayeed/Developer/CurrencyConverterApp/CurrencyConverterApp/Scenes/CurrencyRateViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "33"
+                  endingLineNumber = "33"
+                  offsetFromSymbolStart = "56">
+               </Location>
+               <Location
+                  uuid = "1B38ED45-CCE4-417F-9286-25075D634211 - 7f5ce86a12727d09"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 ((key: Swift.String, value: Swift.Double)) -&gt; Swift.Optional&lt;CurrencyConverterApp.ExchangeRate&gt; in closure #2 (CurrencyConverterApp.LatestCurrencies) -&gt; () in CurrencyConverterApp.CurrencyRateViewModel.fetchLatestCurrencies() -&gt; ()"
+                  moduleName = "CurrencyConverterApp"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/imransayeed/Developer/CurrencyConverterApp/CurrencyConverterApp/Scenes/CurrencyRateViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "33"
+                  endingLineNumber = "33"
+                  offsetFromSymbolStart = "72">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

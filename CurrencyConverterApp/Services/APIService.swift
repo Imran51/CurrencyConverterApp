@@ -9,7 +9,8 @@ import Foundation
 import Combine
 
 protocol CurrencyService {
-    func fetchLatestCurrencies(urlRequest: DataRequest) -> AnyPublisher<LatestCurrencies, NetworkError>
+    func fetchLatestCurrencies() -> AnyPublisher<LatestCurrencies, NetworkError>
+    func getCurrencies() -> AnyPublisher<[String:String], NetworkError>
 }
 
 struct ErrorInfo: Decodable {
@@ -116,8 +117,12 @@ enum NetworkError: Error {
 }
 
 class APIServiceImpl: CurrencyService {
-    func fetchLatestCurrencies(urlRequest: DataRequest) -> AnyPublisher<LatestCurrencies, NetworkError> {
-        request(urlRequest: urlRequest)
+    func fetchLatestCurrencies() -> AnyPublisher<LatestCurrencies, NetworkError> {
+        request(urlRequest: CurrencyRequestLayer.latestCurrencies)
+    }
+    
+    func getCurrencies() -> AnyPublisher<[String:String], NetworkError> {
+        request(urlRequest: CurrencyRequestLayer.currencies)
     }
     
     private func request<T: Decodable>(urlRequest: DataRequest) -> AnyPublisher<T, NetworkError> {

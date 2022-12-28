@@ -9,9 +9,14 @@ import Foundation
 
 import Foundation
 
-struct ExchangeRate {
+struct ExchangeRate: Hashable {
     let targetCurrencyCode: String
     let value: Double
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(targetCurrencyCode)
+        hasher.combine(value)
+    }
 }
 
 extension ExchangeRate {
@@ -20,4 +25,8 @@ extension ExchangeRate {
     }
 }
 
-extension ExchangeRate: Equatable {}
+extension ExchangeRate: Equatable {
+    static func == (lhs: ExchangeRate, rhs: ExchangeRate) -> Bool {
+        lhs.targetCurrencyCode == rhs.targetCurrencyCode && lhs.value == rhs.value
+    }
+}
