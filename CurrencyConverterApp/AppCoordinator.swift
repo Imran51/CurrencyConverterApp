@@ -13,6 +13,14 @@ protocol Coordinator {
     var navigationController: UINavigationController { get set }
     
     func start()
+    
+    func showCurrencySelectionViewController()
+    
+    func dismissCurrencySelectionView()
+}
+
+protocol Coordinating {
+    var coordinator: Coordinator? { get set }
 }
 
 class AppCoordinator: Coordinator {
@@ -25,9 +33,21 @@ class AppCoordinator: Coordinator {
     }
     
     func start() {
-        let vc = CurrencyRateViewController()
+        var vc = CurrencyRateViewController()
         vc.appCoordinator = self
-        vc.viewModel = CurrencyRateViewModel(networkService: APIServiceImpl())
+        
+        vc.viewModel = CurrencyRateViewModel(networkService: APIServiceImpl(), realmStore: RealmManager.shared, locaStore: CurrencyLocalStore.shared)
         navigationController.pushViewController(vc, animated: true)
+    }
+    
+    func showCurrencySelectionViewController() {
+        let vc = CurrencySelectionViewController()
+        vc.appCoordinator = self
+        vc.viewModel = CurrencySelectionViewModel(networkService: APIServiceImpl(), realmStore: RealmManager.shared, locaStore: CurrencyLocalStore.shared)
+        navigationController.pushViewController(vc, animated: true)
+    }
+    
+    func dismissCurrencySelectionView() {
+        
     }
 }

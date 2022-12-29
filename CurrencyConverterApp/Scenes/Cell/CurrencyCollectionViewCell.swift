@@ -13,7 +13,6 @@ class CurrencyCollectionViewCell: UICollectionViewCell {
     private let currencyCodeLabel: UILabel = {
         let label = UILabel()
         label.text = "USD"
-//        label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
 
         return label
@@ -22,7 +21,6 @@ class CurrencyCollectionViewCell: UICollectionViewCell {
     private let currencyValueLabel: UILabel = {
         let label = UILabel()
         label.text = "0.00"
-//        label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .right
 
         return label
@@ -31,10 +29,13 @@ class CurrencyCollectionViewCell: UICollectionViewCell {
     private var containerStackView: UIStackView = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.axis = .horizontal
+        stack.axis = .vertical
         stack.distribution = .fillEqually
         stack.alignment = .center
-        stack.spacing = 10
+        stack.spacing = 5
+        stack.backgroundColor = .quaternaryLabel
+        stack.layer.masksToBounds = true
+        stack.layer.cornerRadius = 13
         return stack
     }()
     

@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 class CurrencyRateViewController: UIViewController {
-    weak var appCoordinator: AppCoordinator?
+    var appCoordinator: Coordinator?
     var viewModel: CurrencyRateViewModel?
     
     private lazy var collectionView: UICollectionView = {
@@ -35,10 +35,10 @@ class CurrencyRateViewController: UIViewController {
     
     private let currentCurrencyLabel: UILabel = {
         let label = UILabel()
-        label.text = "Base currency is USD"
+        label.text = "Base currency in USD"
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .right
-
+        
         return label
     }()
     
@@ -63,7 +63,7 @@ class CurrencyRateViewController: UIViewController {
         stack.axis = .horizontal
         stack.distribution = .fill
         stack.alignment = .fill
-        stack.spacing = 5
+        stack.spacing = 10
         return stack
     }()
     
@@ -81,24 +81,46 @@ class CurrencyRateViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     
     private func createCollectionViewLayout() -> UICollectionViewLayout {
-        // Define Item Size
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(60))
-
-        // Create Item
+        //        // Define Item Size
+        //        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(60))
+        //
+        //        // Create Item
+        //        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        //
+        //        // Define Group Size
+        //        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(60))
+        //
+        //        // Create Group
+        //        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+        //
+        //        // Create Section
+        //        let section = NSCollectionLayoutSection(group: group)
+        //
+        //        // Configure Section
+        //        section.contentInsets = NSDirectionalEdgeInsets(top: 0.0, leading: 10.0, bottom: 0.0, trailing: 10.0)
+        //
+        //        return UICollectionViewCompositionalLayout(section: section)
+        let fraction: CGFloat = 1 / 3.1
+        
+        // Item
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(fraction), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
-        // Define Group Size
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(60))
-
-        // Create Group
-        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-
-        // Create Section
+        
+        // Group
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(70))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        group.interItemSpacing = .fixed(5)
+        // Section
         let section = NSCollectionLayoutSection(group: group)
-
-        // Configure Section
-        section.contentInsets = NSDirectionalEdgeInsets(top: 0.0, leading: 10.0, bottom: 0.0, trailing: 10.0)
-
+        let inset: CGFloat = 2.5
+        
+        // after item declaration…
+        item.contentInsets = NSDirectionalEdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset)
+        
+        // after section delcaration…
+        section.contentInsets = NSDirectionalEdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset)
+        section.interGroupSpacing = 5
+        
         return UICollectionViewCompositionalLayout(section: section)
     }
     
@@ -109,13 +131,16 @@ class CurrencyRateViewController: UIViewController {
         self.dataSource = CurrencyRateCollectionDataSource(collectionView)
         viewModel?.$exchangeRate
             .sink { [weak self] data in
-                
                 self?.dataSource?.update(data)
             }
             .store(in: &cancellables)
+        viewModel?.$baseCurrency.sink(receiveValue: { [weak self] str in
+            self?.currentCurrencyLabel.text = str
+        })
+        .store(in: &cancellables)
         viewModel?.fetchLatestCurrencies()
     }
-
+    
     private func setupUI() {
         title = "Convert Currency"
         view.addSubview(currencyConatinerStackView)
@@ -129,6 +154,11 @@ class CurrencyRateViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard(_:)))
         view.addGestureRecognizer(tapGesture)
         setupConstraint()
+        currencyPickerButton.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
+    }
+    
+    @objc func buttonTapped(_ sender: UIButton) {
+        appCoordinator?.showCurrencySelectionViewController()
     }
     
     @objc func dismissKeyboard(_ gesture: UITapGestureRecognizer) {
@@ -154,10 +184,18 @@ extension CurrencyRateViewController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        viewModel?.changeCurrentRate(for: textField.text ?? "1")
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        
+    }
 }
 
 extension CurrencyRateViewController {
-   final class CurrencyRateCollectionDataSource: UICollectionViewDiffableDataSource<Int, ExchangeRate> {
+    final class CurrencyRateCollectionDataSource: UICollectionViewDiffableDataSource<Int, ExchangeRate> {
         init(_ collectionView: UICollectionView) {
             super.init(collectionView: collectionView) { collectionView, indexPath, item in
                 let cell = collectionView.dequeueReusableCell(

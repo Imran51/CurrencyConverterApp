@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 protocol CurrencyService {
-    func fetchLatestCurrencies() -> AnyPublisher<LatestCurrencies, NetworkError>
+    func fetchLatestCurrencies(base: String?) -> AnyPublisher<LatestCurrencies, NetworkError>
     func getCurrencies() -> AnyPublisher<[String:String], NetworkError>
 }
 
@@ -54,7 +54,7 @@ enum CurrencyRequestLayer: DataRequest {
     }
     
     case currencies
-    case latestCurrencies
+    case latestCurrencies(base:String?)
     
     var queryItems: [URLQueryItem] {
         switch self {
@@ -74,7 +74,10 @@ enum CurrencyRequestLayer: DataRequest {
         switch self {
         case .currencies:
             return "currencies.json"
-        case .latestCurrencies:
+        case .latestCurrencies(let base):
+            if let base = base {
+                return "latest.json"+"/"+base
+            }
             return "latest.json"
         }
     }
@@ -117,8 +120,8 @@ enum NetworkError: Error {
 }
 
 class APIServiceImpl: CurrencyService {
-    func fetchLatestCurrencies() -> AnyPublisher<LatestCurrencies, NetworkError> {
-        request(urlRequest: CurrencyRequestLayer.latestCurrencies)
+    func fetchLatestCurrencies(base: String?) -> AnyPublisher<LatestCurrencies, NetworkError> {
+        request(urlRequest: CurrencyRequestLayer.latestCurrencies(base: nil))
     }
     
     func getCurrencies() -> AnyPublisher<[String:String], NetworkError> {
