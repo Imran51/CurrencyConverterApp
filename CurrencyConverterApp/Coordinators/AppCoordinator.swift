@@ -10,9 +10,18 @@ import UIKit
 
 protocol Coordinator: AnyObject {
     var childCoordinators: [Coordinator] { get set }
+    
     var navigationController: UINavigationController { get set }
     
     func start()
+    
+    func showLoadingIndicatorView(toggle: Bool)
+}
+
+extension Coordinator {
+    func showLoadingIndicatorView(toggle: Bool) {
+        toggle ? LoadingIndicatorView.sharedInstance.show(withTitle: "Please wait..") : LoadingIndicatorView.sharedInstance.hide()
+    }
 }
 
 protocol AppCoordinatorDelegate: AnyObject {
@@ -40,8 +49,8 @@ class AppCoordinator: NSObject, Coordinator, UINavigationControllerDelegate {
         navigationController.pushViewController(vc, animated: true)
     }
     
-    func showCurrencySelectionViewController() {
-        let child = CurrencySelectionCoordinator(navigationController: navigationController)
+    func showCurrencySelectionViewController(withBaseCurrencyCode currencyCode: String) {
+        let child = SupportedCurrencyCoordinator(navigationController: navigationController, baseCurrency: currencyCode)
         child.parentCoordinator = self
         child.delegate = self
         childCoordinators.append(child)
@@ -69,35 +78,40 @@ class AppCoordinator: NSObject, Coordinator, UINavigationControllerDelegate {
     }
 }
 
-extension AppCoordinator: CurrencySelectionCoordinatorDelegate {
+extension AppCoordinator: SupportedCurrencyCoordinatorDelegate {
     func didSelectCurrency(info: CurrencyInfo) {
         delegate?.didSelectedCurrency(info: info)
     }
 }
 
-protocol CurrencySelectionCoordinatorDelegate: AnyObject {
+protocol SupportedCurrencyCoordinatorDelegate: AnyObject {
     func didSelectCurrency(info: CurrencyInfo)
 }
 
-class CurrencySelectionCoordinator: Coordinator {
+class SupportedCurrencyCoordinator: Coordinator {
     var childCoordinators: [Coordinator] = []
     weak var parentCoordinator: AppCoordinator?
-    weak var delegate: CurrencySelectionCoordinatorDelegate?
+    weak var delegate: SupportedCurrencyCoordinatorDelegate?
     var navigationController: UINavigationController
+    var baseCurrencyCode: String
     
-    init(navigationController: UINavigationController) {
+    init(navigationController: UINavigationController, baseCurrency: String) {
         self.navigationController = navigationController
+        baseCurrencyCode = baseCurrency
     }
     
     func start() {
         let vc = CurrencySelectionViewController()
         vc.appCoordinator = self
-        vc.viewModel = CurrencySelectionViewModel(networkService: APIServiceImpl(), realmStore: RealmManager.shared, locaStore: CurrencyLocalStore.shared)
+        vc.viewModel = CurrencySelectionViewModel(networkService: APIServiceImpl(), realmStore: RealmManager.shared, locaStore: CurrencyLocalStore.shared, baseCurrencyCode: baseCurrencyCode)
         navigationController.pushViewController(vc, animated: true)
     }
     
-    func didFinishSelection(_ currencyInfo: CurrencyInfo) {
+    func didFinishSelection() {
         parentCoordinator?.childDidFinish(self)
+    }
+    
+    func didFinishSelection(_ currencyInfo: CurrencyInfo) {
         navigationController.popViewController(animated: true)
         delegate?.didSelectCurrency(info: currencyInfo)
     }

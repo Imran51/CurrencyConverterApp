@@ -11,6 +11,8 @@ import Combine
 final class CurrencyRateViewModel {
     @Published var exchangeRate: [ExchangeRate] = []
     @Published var baseCurrency: String = "USD"
+    @Published var isProcessingData: Bool = false
+    @Published var currencyFetchingError: NetworkError? = nil
     
     private var initialExchangeRate: [ExchangeRate] = []
     private let networkService: CurrencyService
@@ -25,8 +27,10 @@ final class CurrencyRateViewModel {
     }
     
     func fetchLatestCurrencyRate() {
+        isProcessingData = true
         if let date: Date = localUserDefaults.get(for: .currenciesFetchedTimestamp), isDataNeedsToRefresh(for: date)  {
-            guard let fetchedLastCurrency = realmStore.getLatestCurrencyExchangeRate() else {
+            guard let fetchedLastCurrency = realmStore.getLatestCurrencyExchangeRate(by: baseCurrency) else {
+                isProcessingData = false
                 return
             }
             setDisplableExchangeRate(for: fetchedLastCurrency, with: 1.0)
@@ -40,8 +44,10 @@ final class CurrencyRateViewModel {
     }
     
     func exchangeCurrency(forAmount amount: Double = 1,andBase base: String) {
+        isProcessingData = true
         if let fetchedLastCurrency = realmStore.getLatestCurrencyExchangeRate(by: base), let date: Date = localUserDefaults.get(for: .currenciesFetchedTimestamp), isDataNeedsToRefresh(for: date) {
             setDisplableExchangeRate(for: fetchedLastCurrency, with: amount)
+            isProcessingData = false
         } else {
             fetchCurrencyBy(base: base, amount: amount)
         }
@@ -53,15 +59,18 @@ final class CurrencyRateViewModel {
         localCurrencyExchangeRate.rates.forEach({ exchangeRateMap[$0.key] = $0.val })
         initialExchangeRate = exchangeValueBasedOn(baseCode: localCurrencyExchangeRate.base, rates: exchangeRateMap).sorted(by: { $0.targetCurrencyCode < $1.targetCurrencyCode })
         exchangeRate = initialExchangeRate.map { ExchangeRate(targetCurrencyCode: $0.targetCurrencyCode, value: $0.value*amount) }
+        isProcessingData = false
     }
     
     private func fetchCurrencyBy(base: String?, amount: Double = 1) {
         networkService.fetchLatestCurrencies(base: nil)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { result in
+            .sink(receiveCompletion: { [weak self] result in
+                guard let self = self else { return }
+                self.isProcessingData = false
                 switch result {
                 case .failure(let error):
-                    print(error.localizedDescription)
+                    self.currencyFetchingError = error
                 case .finished:
                     print("Success")
                 }

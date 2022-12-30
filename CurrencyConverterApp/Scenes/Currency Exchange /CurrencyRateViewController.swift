@@ -29,13 +29,23 @@ class CurrencyRateViewController: UIViewController {
         textField.keyboardType = .decimalPad
         textField.returnKeyType = .done
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.borderStyle = .roundedRect
+        
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: textField.frame.height))
+        textField.leftViewMode = .always
+        textField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 15, height: textField.frame.height))
+        textField.rightViewMode = .always
+        
+        textField.layer.masksToBounds = true
+        textField.layer.borderColor = UIColor.quaternaryLabel.cgColor
+        textField.layer.borderWidth = 2
+        textField.layer.cornerRadius = 20
+        
         return textField
     }()
     
     private let currentCurrencyLabel: UILabel = {
         let label = UILabel()
-        label.text = "Base currency in "
+        label.text = "U.S. dollar-based currency"
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .right
         
@@ -44,16 +54,15 @@ class CurrencyRateViewController: UIViewController {
     
     private let currencyPickerButton: UIButton = {
         let button = UIButton(type: .system)
+        var buttonConfig: UIButton.Configuration = .bordered()
+        buttonConfig.cornerStyle = .capsule
+        button.configuration = buttonConfig
         button.widthAnchor.constraint(equalToConstant: 100).isActive = true
         button.setTitle("USD", for: .normal)
         button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
-        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
-        button.layer.masksToBounds = true
-        button.layer.borderColor = UIColor.label.cgColor
         button.tintColor = .label
-        button.layer.borderWidth = 1
-        button.layer.cornerRadius = 12
+        
         return button
     }()
     
@@ -64,6 +73,7 @@ class CurrencyRateViewController: UIViewController {
         stack.distribution = .fill
         stack.alignment = .fill
         stack.spacing = 10
+        
         return stack
     }()
     
@@ -74,6 +84,7 @@ class CurrencyRateViewController: UIViewController {
         stack.distribution = .fillEqually
         stack.alignment = .fill
         stack.spacing = 15
+        
         return stack
     }()
     
@@ -81,25 +92,6 @@ class CurrencyRateViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     
     private func createCollectionViewLayout() -> UICollectionViewLayout {
-        //        // Define Item Size
-        //        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(60))
-        //
-        //        // Create Item
-        //        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        //
-        //        // Define Group Size
-        //        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(60))
-        //
-        //        // Create Group
-        //        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
-        //
-        //        // Create Section
-        //        let section = NSCollectionLayoutSection(group: group)
-        //
-        //        // Configure Section
-        //        section.contentInsets = NSDirectionalEdgeInsets(top: 0.0, leading: 10.0, bottom: 0.0, trailing: 10.0)
-        //
-        //        return UICollectionViewCompositionalLayout(section: section)
         let fraction: CGFloat = 1 / 3.1
         
         // Item
@@ -137,10 +129,20 @@ class CurrencyRateViewController: UIViewController {
             }
             .store(in: &cancellables)
         
-        viewModel?.$baseCurrency.sink(receiveValue: { [weak self] str in
-            self?.currentCurrencyLabel.text = "Base currency in " + str
+        viewModel?.$currencyFetchingError.sink(receiveValue: { [weak self] error in
+            guard let self = self, let error = error else { return }
+            self.showErrorAlert(error)
         })
         .store(in: &cancellables)
+        
+        viewModel?.$baseCurrency.sink(receiveValue: { [weak self] text in
+            guard let self = self else { return }
+            self.currencyPickerButton.setTitle(text, for: .normal)
+        }).store(in: &cancellables)
+        
+        viewModel?.$isProcessingData.sink(receiveValue: {[weak self] toggle in
+            self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle)
+        }).store(in: &cancellables)
         
         viewModel?.fetchLatestCurrencyRate()
         appCoordinator?.delegate = self
@@ -163,7 +165,7 @@ class CurrencyRateViewController: UIViewController {
     }
     
     @objc func buttonTapped(_ sender: UIButton) {
-        appCoordinator?.showCurrencySelectionViewController()
+        appCoordinator?.showCurrencySelectionViewController(withBaseCurrencyCode: viewModel?.baseCurrency ?? "USD")
     }
     
     @objc func dismissKeyboard(_ gesture: UITapGestureRecognizer) {
@@ -198,6 +200,8 @@ extension CurrencyRateViewController: UITextFieldDelegate {
         
     }
 }
+
+extension CurrencyRateViewController: AlertDisplayable {  }
 
 extension CurrencyRateViewController {
     final class CurrencyRateCollectionDataSource: UICollectionViewDiffableDataSource<Int, ExchangeRate> {

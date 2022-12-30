@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct LatestCurrencies: Decodable {
+struct LatestCurrencyExchangeRateInfo: Decodable {
     var timestamp: Double
     var base: String
     var rates: [String: Double]

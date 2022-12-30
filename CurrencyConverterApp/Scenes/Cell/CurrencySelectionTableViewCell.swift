@@ -22,6 +22,7 @@ class CurrencySelectionTableViewCell: UITableViewCell {
         label.text = "0.00"
 //        label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
+        label.numberOfLines = 0
 
         return label
     }()
@@ -54,8 +55,6 @@ class CurrencySelectionTableViewCell: UITableViewCell {
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        self.accessoryType = selected ? .checkmark : .none
     }
     
     func setupUI() {
@@ -80,6 +79,7 @@ class CurrencySelectionTableViewCell: UITableViewCell {
     func configure(currencyInfo: CurrencyInfo) {
         currencyCodeLabel.text = currencyInfo.code
         currencyCountryNameLabel.text = currencyInfo.name
+        currencyCountryNameLabel.sizeToFit()
     }
 
 }

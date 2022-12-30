@@ -9,13 +9,14 @@ import UIKit
 import Combine
 
 class CurrencySelectionViewController: UIViewController {
-    weak var appCoordinator: CurrencySelectionCoordinator?
+    weak var appCoordinator: SupportedCurrencyCoordinator?
     var viewModel: CurrencySelectionViewModel?
     
     private let selectionTableview: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.estimatedRowHeight = 50
+        tableView.estimatedRowHeight = 80
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.tableFooterView = UIView()
         tableView.register(CurrencySelectionTableViewCell.self, forCellReuseIdentifier: String(describing: CurrencySelectionTableViewCell.self))
         tableView.separatorStyle = .none
@@ -31,14 +32,13 @@ class CurrencySelectionViewController: UIViewController {
         super.loadView()
         
         view.addSubview(selectionTableview)
-        
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-        dataSource = TableDataSource(selectionTableview)
+        dataSource = TableDataSource(selectionTableview, baseCurrency: viewModel?.baseCurrency ?? "USD")
         dataSource?.defaultRowAnimation = .fade
         
         selectionTableview.dataSource = dataSource
@@ -54,17 +54,27 @@ class CurrencySelectionViewController: UIViewController {
         })
         .store(in: &cancellables)
         
+        viewModel?.$currencyFetchingError.sink(receiveValue: { [weak self] error in
+            guard let self = self, let error = error else { return }
+            self.showErrorAlert(error)
+        })
+        .store(in: &cancellables)
+        
+        viewModel?.$isProcessingData.sink(receiveValue: {[weak self] toggle in
+            self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle)
+        }).store(in: &cancellables)
+        
         viewModel?.fetchAvailableCurrencies()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
         
-        
-        
+        appCoordinator?.didFinishSelection()
     }
     
     func setupUIAndConstraint() {
+        self.title = "Supported Currencies"
         NSLayoutConstraint.activate([
             selectionTableview.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             selectionTableview.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
@@ -81,21 +91,22 @@ extension CurrencySelectionViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        50
+        70
     }
 }
 
+extension CurrencySelectionViewController: AlertDisplayable {}
+
 
 final class TableDataSource: UITableViewDiffableDataSource<Int, CurrencyInfo> {
-    init(_ tableView: UITableView) {
+    init(_ tableView: UITableView, baseCurrency: String) {
         super.init(tableView: tableView) { tableView, indexPath, item in
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: String(describing: CurrencySelectionTableViewCell.self),
                 for: indexPath
             ) as! CurrencySelectionTableViewCell
-            cell.selectionStyle = .none
             cell.configure(currencyInfo: item)
-            
+            cell.accessoryType = baseCurrency == item.code ? .checkmark : .none
             return cell
         }
     }
