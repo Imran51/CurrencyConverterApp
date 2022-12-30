@@ -37,7 +37,7 @@ class CurrencyRateViewController: UIViewController {
         
         textField.layer.masksToBounds = true
         textField.layer.borderColor = UIColor.quaternaryLabel.cgColor
-        textField.layer.borderWidth = 2
+        textField.layer.borderWidth = 1
         textField.layer.cornerRadius = 20
         
         return textField
@@ -141,7 +141,7 @@ class CurrencyRateViewController: UIViewController {
         }).store(in: &cancellables)
         
         viewModel?.$isProcessingData.sink(receiveValue: {[weak self] toggle in
-            self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle)
+            self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle ?? true)
         }).store(in: &cancellables)
         
         viewModel?.fetchLatestCurrencyRate()

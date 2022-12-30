@@ -11,7 +11,7 @@ import Combine
 final class CurrencyRateViewModel {
     @Published var exchangeRate: [ExchangeRate] = []
     @Published var baseCurrency: String = "USD"
-    @Published var isProcessingData: Bool = false
+    @Published var isProcessingData: Bool? = nil
     @Published var currencyFetchingError: NetworkError? = nil
     
     private var initialExchangeRate: [ExchangeRate] = []

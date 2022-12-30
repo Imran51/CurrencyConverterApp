@@ -60,8 +60,9 @@ class CurrencySelectionViewController: UIViewController {
         })
         .store(in: &cancellables)
         
+        self.appCoordinator?.showLoadingIndicatorView(toggle: true)
         viewModel?.$isProcessingData.sink(receiveValue: {[weak self] toggle in
-            self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle)
+            self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle ?? true)
         }).store(in: &cancellables)
         
         viewModel?.fetchAvailableCurrencies()

@@ -11,7 +11,7 @@ import Combine
 final class CurrencySelectionViewModel {
     @Published var availableCurrencies = [CurrencyInfo]()
     @Published var currencyFetchingError: NetworkError? = nil
-    @Published var isProcessingData: Bool = false
+    @Published var isProcessingData: Bool? = nil
     
     var viewModel: CurrencySelectionViewModel?
     private let networkService: CurrencyService
