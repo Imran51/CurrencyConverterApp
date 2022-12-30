@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-class LocalCurrencies: Object {
+class LocalCurrencyExchangeRate: Object {
     @objc dynamic var timestamp: Double = 0.0
     @objc dynamic var base: String = ""
     let rates = List<RatesDictionary>()
@@ -17,10 +17,10 @@ class LocalCurrencies: Object {
         return "base"
     }
     
-    func appendToList(rateDictionary: [String: Double]){
+    func appendToList(rateDictionary: [ExchangeRate]){
         rateDictionary.forEach{
             let entry = RatesDictionary()
-            entry.key = $0.key
+            entry.key = $0.targetCurrencyCode
             entry.val = $0.value
             rates.append(entry)
         }

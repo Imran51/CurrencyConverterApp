@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 class CurrencySelectionViewController: UIViewController {
-    var appCoordinator: Coordinator?
+    weak var appCoordinator: CurrencySelectionCoordinator?
     var viewModel: CurrencySelectionViewModel?
     
     private let selectionTableview: UITableView = {
@@ -76,8 +76,8 @@ class CurrencySelectionViewController: UIViewController {
 
 extension CurrencySelectionViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        guard let items = dataSource?.itemIdentifier(for: indexPath) else { return }
-        
+        guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
+        appCoordinator?.didFinishSelection(CurrencyInfo(code: item.code, name: item.name))
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

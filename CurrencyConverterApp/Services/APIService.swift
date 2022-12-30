@@ -121,7 +121,7 @@ enum NetworkError: Error {
 
 class APIServiceImpl: CurrencyService {
     func fetchLatestCurrencies(base: String?) -> AnyPublisher<LatestCurrencies, NetworkError> {
-        request(urlRequest: CurrencyRequestLayer.latestCurrencies(base: nil))
+        request(urlRequest: CurrencyRequestLayer.latestCurrencies(base: base))
     }
     
     func getCurrencies() -> AnyPublisher<[String:String], NetworkError> {

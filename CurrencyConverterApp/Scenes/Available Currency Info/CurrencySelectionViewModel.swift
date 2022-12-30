@@ -39,10 +39,10 @@ final class CurrencySelectionViewModel {
                     case .finished:
                         print("Success")
                     }
-                } receiveValue: { [weak self] currencies in
-                    self?.availableCurrencies = currencies.compactMap { CurrencyInfo(code: $0.key, name: $0.value) }
+                } receiveValue: { [weak self] availableCurrencyList in
+                    self?.availableCurrencies = availableCurrencyList.compactMap { CurrencyInfo(code: $0.key, name: $0.value) }.sorted(by: { $0.code < $1.code })
                     var currencyList = [Currency]()
-                    currencies.forEach {
+                    availableCurrencyList.forEach {
                         let currency = Currency()
                         currency.code = $0.key
                         currency.name = $0.value

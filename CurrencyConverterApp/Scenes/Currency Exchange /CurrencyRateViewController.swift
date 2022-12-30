@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 class CurrencyRateViewController: UIViewController {
-    var appCoordinator: Coordinator?
+    weak var appCoordinator: AppCoordinator?
     var viewModel: CurrencyRateViewModel?
     
     private lazy var collectionView: UICollectionView = {
@@ -35,7 +35,7 @@ class CurrencyRateViewController: UIViewController {
     
     private let currentCurrencyLabel: UILabel = {
         let label = UILabel()
-        label.text = "Base currency in USD"
+        label.text = "Base currency in "
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .right
         
@@ -46,7 +46,7 @@ class CurrencyRateViewController: UIViewController {
         let button = UIButton(type: .system)
         button.widthAnchor.constraint(equalToConstant: 100).isActive = true
         button.setTitle("USD", for: .normal)
-        button.setImage(UIImage(systemName: "chevron.down"), for: .normal)
+        button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
         button.layer.masksToBounds = true
@@ -128,21 +128,26 @@ class CurrencyRateViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setupUI()
-        self.dataSource = CurrencyRateCollectionDataSource(collectionView)
+        
+        dataSource = CurrencyRateCollectionDataSource(collectionView)
+        
         viewModel?.$exchangeRate
             .sink { [weak self] data in
                 self?.dataSource?.update(data)
             }
             .store(in: &cancellables)
+        
         viewModel?.$baseCurrency.sink(receiveValue: { [weak self] str in
-            self?.currentCurrencyLabel.text = str
+            self?.currentCurrencyLabel.text = "Base currency in " + str
         })
         .store(in: &cancellables)
-        viewModel?.fetchLatestCurrencies()
+        
+        viewModel?.fetchLatestCurrencyRate()
+        appCoordinator?.delegate = self
     }
     
     private func setupUI() {
-        title = "Convert Currency"
+        title = "Currency Exchange Rate"
         view.addSubview(currencyConatinerStackView)
         view.addSubview(collectionView)
         
@@ -215,5 +220,12 @@ extension CurrencyRateViewController {
             snapShot.appendItems(items, toSection: 0)
             apply(snapShot, animatingDifferences: animated)
         }
+    }
+}
+
+extension CurrencyRateViewController: AppCoordinatorDelegate {
+    func didSelectedCurrency(info: CurrencyInfo) {
+        currencyPickerButton.setTitle(info.code, for: .normal)
+        viewModel?.exchangeCurrency(forAmount: Double(currenncyInputTextField.text ?? "1") ?? 1, andBase: info.code)
     }
 }

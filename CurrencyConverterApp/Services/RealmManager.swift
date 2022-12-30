@@ -10,14 +10,23 @@ import RealmSwift
 
 protocol RealmStore: AnyObject {
    func addOrUpdate(_ object: Object)
+   
    func addorUpdate(_ objects: [Object])
    
-   func getLatestCurrencies() -> LocalCurrencies?
+   func getLatestCurrencyExchangeRate() -> LocalCurrencyExchangeRate?
    
    func currencyInfo() -> [CurrencyInfo]?
+   
+   func getLatestCurrencyExchangeRate(by base: String) -> LocalCurrencyExchangeRate?
 }
 
 class RealmManager: RealmStore {
+   func getLatestCurrencyExchangeRate(by base: String) -> LocalCurrencyExchangeRate? {
+      guard let realm = realm else { return nil }
+      let localCurrency = realm.object(ofType: LocalCurrencyExchangeRate.self, forPrimaryKey: base)
+      return localCurrency
+   }
+   
    func currencyInfo() -> [CurrencyInfo]? {
       guard let realm = realm else { return nil }
       let currencies = realm.objects(Currency.self).sorted(byKeyPath: "code", ascending: true)
@@ -35,10 +44,10 @@ class RealmManager: RealmStore {
       print("saved success-> \(saved)")
    }
    
-   func getLatestCurrencies() -> LocalCurrencies? {
+   func getLatestCurrencyExchangeRate() -> LocalCurrencyExchangeRate? {
       guard let realm = realm else { return nil }
-      let currencies = realm.objects(LocalCurrencies.self).sorted(byKeyPath: "timestamp", ascending: false)
-      return currencies.compactMap({ LocalCurrencies(value: $0) }).first
+      let currencies = realm.objects(LocalCurrencyExchangeRate.self).sorted(byKeyPath: "timestamp", ascending: true)
+      return currencies.compactMap({ LocalCurrencyExchangeRate(value: $0) }).first
    }
    
    
