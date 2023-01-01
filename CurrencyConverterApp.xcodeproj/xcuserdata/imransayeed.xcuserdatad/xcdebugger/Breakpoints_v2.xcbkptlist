@@ -7,22 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "F1E13243-57C5-45A3-81C6-2FE8E4B63209"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CurrencyConverterApp/Services/APIService.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "17"
-            endingLineNumber = "17"
-            landmarkName = "getCurrencies()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "1504CAFD-3991-4842-AE95-CAF8C6DAF338"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -318,8 +302,8 @@
             filePath = "CurrencyConverterApp/Services/RealmManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "72"
-            endingLineNumber = "72"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
             landmarkName = "save(objects:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -334,8 +318,8 @@
             filePath = "CurrencyConverterApp/Services/RealmManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "38"
-            endingLineNumber = "38"
+            startingLineNumber = "52"
+            endingLineNumber = "52"
             landmarkName = "addOrUpdate(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -350,9 +334,9 @@
             filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "49"
-            endingLineNumber = "49"
-            landmarkName = "exchangeCurrency(forAmount:andBase:)"
+            startingLineNumber = "54"
+            endingLineNumber = "54"
+            landmarkName = "exchangeCurrency(forAmount:fromBase:toBase:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -366,9 +350,9 @@
             filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "52"
-            endingLineNumber = "52"
-            landmarkName = "exchangeCurrency(forAmount:andBase:)"
+            startingLineNumber = "57"
+            endingLineNumber = "57"
+            landmarkName = "exchangeCurrency(forAmount:fromBase:toBase:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -391,22 +375,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "174FC90F-3D69-4C0B-9EBD-E8426BAC03FF"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "134"
-            endingLineNumber = "134"
-            landmarkName = "viewDidLoad()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "BFDC9D75-6FA6-4097-8C06-4217844B4404"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -414,8 +382,8 @@
             filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "144"
-            endingLineNumber = "144"
+            startingLineNumber = "198"
+            endingLineNumber = "198"
             landmarkName = "viewDidLoad()"
             landmarkType = "7">
          </BreakpointContent>
@@ -433,6 +401,229 @@
             startingLineNumber = "41"
             endingLineNumber = "41"
             landmarkName = "viewDidLoad()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "516FE696-F666-439D-90A7-D2C569A553A4"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterAppTests/CurrencyConverterAppTests.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "122"
+            endingLineNumber = "122"
+            landmarkName = "awaitPublisher(_:timeout:file:line:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "516FE696-F666-439D-90A7-D2C569A553A4 - 2adbc1180ca6c671"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Combine.Subscribers.Completion&lt;&#x3c4;_0_0.Failure&gt;) -&gt; () in CurrencyConverterAppTests.CurrencyConverterAppTests.awaitPublisher&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Combine.Publisher&gt;(_: &#x3c4;_0_0, timeout: Swift.Double, file: Swift.StaticString, line: Swift.UInt) throws -&gt; &#x3c4;_0_0.Output"
+                  moduleName = "CurrencyConverterAppTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/imransayeed/Developer/CurrencyConverterApp/CurrencyConverterAppTests/CurrencyConverterAppTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "118"
+                  endingLineNumber = "118"
+                  offsetFromSymbolStart = "612">
+               </Location>
+               <Location
+                  uuid = "516FE696-F666-439D-90A7-D2C569A553A4 - 2adbc1180ca6c650"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Combine.Subscribers.Completion&lt;&#x3c4;_0_0.Failure&gt;) -&gt; () in CurrencyConverterAppTests.CurrencyConverterAppTests.awaitPublisher&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Combine.Publisher&gt;(_: &#x3c4;_0_0, timeout: Swift.Double, file: Swift.StaticString, line: Swift.UInt) throws -&gt; &#x3c4;_0_0.Output"
+                  moduleName = "CurrencyConverterAppTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/imransayeed/Developer/CurrencyConverterApp/CurrencyConverterAppTests/CurrencyConverterAppTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "119"
+                  endingLineNumber = "119"
+                  offsetFromSymbolStart = "612">
+               </Location>
+               <Location
+                  uuid = "516FE696-F666-439D-90A7-D2C569A553A4 - 2adbc1180ca6c633"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Combine.Subscribers.Completion&lt;&#x3c4;_0_0.Failure&gt;) -&gt; () in CurrencyConverterAppTests.CurrencyConverterAppTests.awaitPublisher&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Combine.Publisher&gt;(_: &#x3c4;_0_0, timeout: Swift.Double, file: Swift.StaticString, line: Swift.UInt) throws -&gt; &#x3c4;_0_0.Output"
+                  moduleName = "CurrencyConverterAppTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/imransayeed/Developer/CurrencyConverterApp/CurrencyConverterAppTests/CurrencyConverterAppTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "120"
+                  endingLineNumber = "120"
+                  offsetFromSymbolStart = "612">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AABFE958-9710-4D8D-883E-085636A7A02D"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterAppTests/CurrencyConverterAppTests.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "130"
+            endingLineNumber = "130"
+            landmarkName = "awaitPublisher(_:timeout:file:line:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "AABFE958-9710-4D8D-883E-085636A7A02D - 59128b546529dc07"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (&#x3c4;_0_0.Output) -&gt; () in CurrencyConverterAppTests.CurrencyConverterAppTests.awaitPublisher&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Combine.Publisher&gt;(_: &#x3c4;_0_0, timeout: Swift.Double, file: Swift.StaticString, line: Swift.UInt) throws -&gt; &#x3c4;_0_0.Output"
+                  moduleName = "CurrencyConverterAppTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/imransayeed/Developer/CurrencyConverterApp/CurrencyConverterAppTests/CurrencyConverterAppTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "126"
+                  endingLineNumber = "126"
+                  offsetFromSymbolStart = "256">
+               </Location>
+               <Location
+                  uuid = "AABFE958-9710-4D8D-883E-085636A7A02D - 59128b546529dc26"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (&#x3c4;_0_0.Output) -&gt; () in CurrencyConverterAppTests.CurrencyConverterAppTests.awaitPublisher&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Combine.Publisher&gt;(_: &#x3c4;_0_0, timeout: Swift.Double, file: Swift.StaticString, line: Swift.UInt) throws -&gt; &#x3c4;_0_0.Output"
+                  moduleName = "CurrencyConverterAppTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/imransayeed/Developer/CurrencyConverterApp/CurrencyConverterAppTests/CurrencyConverterAppTests.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "127"
+                  endingLineNumber = "127"
+                  offsetFromSymbolStart = "256">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E5288E6C-6C54-4EBC-A40F-740EDB64D453"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "173"
+            endingLineNumber = "173"
+            landmarkName = "viewDidLoad()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "915BDFD2-93B7-47B7-A406-E44565D86D5A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "169"
+            endingLineNumber = "169"
+            landmarkName = "viewDidLoad()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "41F42551-A5A9-4695-8944-F45860E7E71D"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "167"
+            endingLineNumber = "167"
+            landmarkName = "viewDidLoad()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "45D4A9AD-B5F6-4105-A9B1-0302D389F0F1"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "234"
+            endingLineNumber = "234"
+            landmarkName = "toButtonTapped(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C2F977D9-AF3E-4BA1-AF61-4FA5634A60A8"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
+            landmarkName = "changeCurrentRate(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C8EDC482-DC8C-42FD-96F3-512876258E87"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "152"
+            endingLineNumber = "152"
+            landmarkName = "changeCurrentRate(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6639C204-3EFE-4B21-B0EF-B587666AABA0"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CurrencyConverterApp/Scenes/Currency Exchange /CurrencyRateViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "150"
+            endingLineNumber = "150"
+            landmarkName = "changeCurrentRate(for:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

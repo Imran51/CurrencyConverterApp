@@ -21,8 +21,11 @@ protocol CurrencyLocalStoreProtocol {
 class CurrencyLocalStore: CurrencyLocalStoreProtocol {
 
     static let shared = CurrencyLocalStore()
-
-    private let defaults: UserDefaults = UserDefaults.standard
+    #if TESTING
+        private let defaults: UserDefaults = MockUserDefaults(suiteName: "TestingCurrencyLocalStore")
+    #else
+        private let defaults: UserDefaults = UserDefaults.standard
+    #endif
 
     private init() {}
 
@@ -33,4 +36,16 @@ class CurrencyLocalStore: CurrencyLocalStoreProtocol {
     func set<T>(value: T?, for key: DefaultsKey) {
         defaults.set(value, forKey: key.rawValue)
     }
+}
+
+
+class MockUserDefaults : UserDefaults {
+  convenience init() {
+    self.init(suiteName: "Mock User Defaults")!
+  }
+
+  override init?(suiteName suitename: String?) {
+    UserDefaults().removePersistentDomain(forName: suitename!)
+    super.init(suiteName: suitename)
+  }
 }

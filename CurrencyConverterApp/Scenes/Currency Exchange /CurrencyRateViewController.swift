@@ -43,38 +43,52 @@ class CurrencyRateViewController: UIViewController {
         return textField
     }()
     
-    private let currentCurrencyLabel: UILabel = {
+    func getLabel() -> UILabel {
         let label = UILabel()
-        label.text = "U.S. dollar-based currency"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .right
         
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.adjustsFontSizeToFitWidth = true
+        
+        return label
+    }
+    
+    private lazy var currentCurrencyFromLabel: UILabel = {
+        let label = getLabel()
+        label.text = "1 USD"
         return label
     }()
     
-    private let currencyPickerButton: UIButton = {
+    private lazy var currentCurrencyToLabel: UILabel = {
+        let label = getLabel()
+        label.text = "102.33 BDT"
+        return label
+    }()
+    
+    private func getButton() -> UIButton {
         let button = UIButton(type: .system)
         var buttonConfig: UIButton.Configuration = .bordered()
         buttonConfig.cornerStyle = .capsule
         button.configuration = buttonConfig
         button.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        button.setTitle("USD", for: .normal)
+        
         button.setImage(UIImage(systemName: "chevron.right"), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         button.tintColor = .label
         
         return button
+    }
+    
+    private lazy var currencyPickerFromButton: UIButton = {
+       let button = getButton()
+        button.setTitle("USD", for: .normal)
+        return button
     }()
     
-    private let horizontalCurrencyPickerContainer: UIStackView = {
-        let stack = UIStackView()
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.axis = .horizontal
-        stack.distribution = .fill
-        stack.alignment = .fill
-        stack.spacing = 10
-        
-        return stack
+    private lazy var currencyPickerToButton: UIButton = {
+       let button = getButton()
+        button.setTitle("BDT", for: .normal)
+        return button
     }()
     
     private let currencyConatinerStackView: UIStackView = {
@@ -88,18 +102,41 @@ class CurrencyRateViewController: UIViewController {
         return stack
     }()
     
+    private let currencyConatinerFromStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.distribution = .fill
+        stack.alignment = .center
+        stack.spacing = 5
+        
+        return stack
+    }()
+    
+    private let currencyConatinerToStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.distribution = .fill
+        stack.alignment = .center
+        stack.spacing = 5
+        
+        return stack
+    }()
+    
     private var dataSource: CurrencyRateCollectionDataSource?
     private var cancellables = Set<AnyCancellable>()
+    private var isFromButtonTapped = false
     
     private func createCollectionViewLayout() -> UICollectionViewLayout {
-        let fraction: CGFloat = 1 / 3.1
+        let fraction: CGFloat = 1 / 2.1
         
         // Item
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(fraction), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         // Group
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(70))
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(90))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.interItemSpacing = .fixed(5)
         // Section
@@ -123,25 +160,42 @@ class CurrencyRateViewController: UIViewController {
         
         dataSource = CurrencyRateCollectionDataSource(collectionView)
         
-        viewModel?.$exchangeRate
-            .sink { [weak self] data in
-                self?.dataSource?.update(data)
+        viewModel?.exchangeRate.sink(receiveCompletion: { [weak self] res in
+            guard let self = self else { return }
+            switch res {
+            case .failure(let error):
+                self.showErrorAlert(error)
+            case .finished:
+                print("finished.")
             }
-            .store(in: &cancellables)
-        
-        viewModel?.$currencyFetchingError.sink(receiveValue: { [weak self] error in
-            guard let self = self, let error = error else { return }
-            self.showErrorAlert(error)
+        }, receiveValue: { [weak self] exchangeRates in
+            guard let self = self else { return }
+            self.dataSource?.update(exchangeRates)
         })
         .store(in: &cancellables)
         
-        viewModel?.$baseCurrency.sink(receiveValue: { [weak self] text in
+        viewModel?.fromBaseCurrency.sink(receiveValue: { [weak self] text in
             guard let self = self else { return }
-            self.currencyPickerButton.setTitle(text, for: .normal)
+            self.currencyPickerFromButton.setTitle(text, for: .normal)
         }).store(in: &cancellables)
         
-        viewModel?.$isProcessingData.sink(receiveValue: {[weak self] toggle in
-            self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle ?? true)
+        viewModel?.toBaseCurrency.sink(receiveValue: { [weak self] text in
+            guard let self = self else { return }
+            self.currencyPickerToButton.setTitle(text, for: .normal)
+        }).store(in: &cancellables)
+        
+        viewModel?.fromExchangeRate.sink(receiveValue: { [weak self] text in
+            guard let self = self else { return }
+            self.currentCurrencyFromLabel.text = text
+        }).store(in: &cancellables)
+        
+        viewModel?.toExchangeRate.sink(receiveValue: { [weak self] text in
+            guard let self = self else { return }
+            self.currentCurrencyToLabel.text = text
+        }).store(in: &cancellables)
+        
+        viewModel?.isProcessingData.sink(receiveValue: {[weak self] toggle in
+            self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle)
         }).store(in: &cancellables)
         
         viewModel?.fetchLatestCurrencyRate()
@@ -154,18 +208,30 @@ class CurrencyRateViewController: UIViewController {
         view.addSubview(collectionView)
         
         currencyConatinerStackView.addArrangedSubview(currenncyInputTextField)
-        currencyConatinerStackView.addArrangedSubview(horizontalCurrencyPickerContainer)
-        horizontalCurrencyPickerContainer.addArrangedSubview(currentCurrencyLabel)
-        horizontalCurrencyPickerContainer.addArrangedSubview(currencyPickerButton)
+        currencyConatinerStackView.addArrangedSubview(currencyConatinerFromStackView)
+        currencyConatinerStackView.addArrangedSubview(currencyConatinerToStackView)
+        
+        currencyConatinerFromStackView.addArrangedSubview(currentCurrencyFromLabel)
+        currencyConatinerFromStackView.addArrangedSubview(currencyPickerFromButton)
+        currencyConatinerToStackView.addArrangedSubview(currentCurrencyToLabel)
+        currencyConatinerToStackView.addArrangedSubview(currencyPickerToButton)
+        
         currenncyInputTextField.delegate = self
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard(_:)))
         view.addGestureRecognizer(tapGesture)
         setupConstraint()
-        currencyPickerButton.addTarget(self, action: #selector(buttonTapped(_:)), for: .touchUpInside)
+        currencyPickerFromButton.addTarget(self, action: #selector(fromButtonTapped(_:)), for: .touchUpInside)
+        currencyPickerToButton.addTarget(self, action: #selector(toButtonTapped(_:)), for: .touchUpInside)
     }
     
-    @objc func buttonTapped(_ sender: UIButton) {
-        appCoordinator?.showCurrencySelectionViewController(withBaseCurrencyCode: viewModel?.baseCurrency ?? "USD")
+    @objc func fromButtonTapped(_ sender: UIButton) {
+        isFromButtonTapped = true
+        appCoordinator?.showCurrencySelectionViewController(withBaseCurrencyCode: viewModel?.fromBaseCurrency.value ?? "USD")
+    }
+    
+    @objc func toButtonTapped(_ sender: UIButton) {
+        isFromButtonTapped = false
+        appCoordinator?.showCurrencySelectionViewController(withBaseCurrencyCode: viewModel?.toBaseCurrency.value ?? "BDT")
     }
     
     @objc func dismissKeyboard(_ gesture: UITapGestureRecognizer) {
@@ -177,7 +243,7 @@ class CurrencyRateViewController: UIViewController {
             currencyConatinerStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             currencyConatinerStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
             currencyConatinerStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            currencyConatinerStackView.heightAnchor.constraint(equalToConstant: 90),
+            currencyConatinerStackView.heightAnchor.constraint(equalToConstant: 135),
             collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
             collectionView.topAnchor.constraint(equalTo: currencyConatinerStackView.bottomAnchor, constant: 20),
@@ -203,33 +269,16 @@ extension CurrencyRateViewController: UITextFieldDelegate {
 
 extension CurrencyRateViewController: AlertDisplayable {  }
 
-extension CurrencyRateViewController {
-    final class CurrencyRateCollectionDataSource: UICollectionViewDiffableDataSource<Int, ExchangeRate> {
-        init(_ collectionView: UICollectionView) {
-            super.init(collectionView: collectionView) { collectionView, indexPath, item in
-                let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: String(describing: CurrencyCollectionViewCell.self),
-                    for: indexPath
-                ) as! CurrencyCollectionViewCell
-                cell.configure(item)
-                
-                return cell
-            }
-        }
-        
-        func update(_ items: [ExchangeRate], animated: Bool = false) {
-            var snapShot = snapshot()
-            snapShot.deleteAllItems()
-            snapShot.appendSections([0])
-            snapShot.appendItems(items, toSection: 0)
-            apply(snapShot, animatingDifferences: animated)
-        }
-    }
-}
-
 extension CurrencyRateViewController: AppCoordinatorDelegate {
     func didSelectedCurrency(info: CurrencyInfo) {
-        currencyPickerButton.setTitle(info.code, for: .normal)
-        viewModel?.exchangeCurrency(forAmount: Double(currenncyInputTextField.text ?? "1") ?? 1, andBase: info.code)
+        guard let viewModel = viewModel else {
+            return
+        }
+        if isFromButtonTapped {
+            viewModel.exchangeCurrency(forAmount: Double(currenncyInputTextField.text ?? "1") ?? 1, fromBase: info.code, toBase: viewModel.toBaseCurrency.value)
+        } else {
+            viewModel.exchangeCurrency(forAmount: Double(currenncyInputTextField.text ?? "1") ?? 1, fromBase: viewModel.fromBaseCurrency.value, toBase: info.code)
+        }
+        
     }
 }

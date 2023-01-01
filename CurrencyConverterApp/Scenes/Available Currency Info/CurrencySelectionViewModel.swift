@@ -37,7 +37,7 @@ final class CurrencySelectionViewModel {
             }
             availableCurrencies = currencyInfo
         } else {
-            networkService.getCurrencies()
+            networkService.getCurrencies(currencyRequest: .currencies)
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] result in
                     guard let self = self else { return }

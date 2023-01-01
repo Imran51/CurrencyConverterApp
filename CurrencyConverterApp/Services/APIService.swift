@@ -8,22 +8,15 @@
 import Foundation
 import Combine
 
-class APIServiceImpl: CurrencyService {
-    func fetchLatestCurrencies(base: String?) -> AnyPublisher<LatestCurrencyExchangeRateInfo, NetworkError> {
-        request(urlRequest: CurrencyRequestLayer.latestCurrencies(base: base))
-    }
-    
-    func getCurrencies() -> AnyPublisher<[String:String], NetworkError> {
-        request(urlRequest: CurrencyRequestLayer.currencies)
-    }
-    
-    private func request<T: Decodable>(urlRequest: DataRequest) -> AnyPublisher<T, NetworkError> {
-        guard let urlRequest = try? urlRequest.asURLRequest() else {
-            return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
-        }
-        print(urlRequest)
+
+protocol Requestable {
+    func make<T: Decodable>(request: URLRequest) -> AnyPublisher<T, NetworkError>
+}
+
+struct ApiClient: Requestable {
+    func make<T: Decodable>(request: URLRequest) -> AnyPublisher<T, NetworkError> {
         return URLSession.shared
-            .dataTaskPublisher(for: urlRequest)
+            .dataTaskPublisher(for: request)
             .tryMap { response in
                 guard let httpResponse = response.response as? HTTPURLResponse, 200..<300 ~= httpResponse.statusCode else {
                     throw NetworkError.invalidResponse(response.response.debugDescription)
@@ -42,3 +35,22 @@ class APIServiceImpl: CurrencyService {
             .eraseToAnyPublisher()
     }
 }
+
+struct CurrencyServiceImpl: CurrencyService {
+    let apiClient: Requestable = ApiClient()
+    
+    func fetchLatestCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<LatestCurrencyExchangeRateInfo, NetworkError> {
+        guard let urlRequest = try? currencyRequest.asURLRequest() else {
+            return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
+        }
+        return apiClient.make(request: urlRequest)
+    }
+    
+    func getCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<[String : String], NetworkError> {
+        guard let urlRequest = try? currencyRequest.asURLRequest() else {
+            return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
+        }
+        return apiClient.make(request: urlRequest)
+    }
+}
+

@@ -9,8 +9,8 @@ import Foundation
 import Combine
 
 protocol CurrencyService {
-    func fetchLatestCurrencies(base: String?) -> AnyPublisher<LatestCurrencyExchangeRateInfo, NetworkError>
-    func getCurrencies() -> AnyPublisher<[String:String], NetworkError>
+    func fetchLatestCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<LatestCurrencyExchangeRateInfo, NetworkError>
+    func getCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<[String:String], NetworkError>
 }
 
 struct ErrorInfo: Decodable {
@@ -48,7 +48,7 @@ extension DataRequest {
 }
 
 enum CurrencyRequestLayer: DataRequest {
-    private enum Constants {
+    enum Constants {
         static let baseURLPath = "https://openexchangerates.org/api"
         static let apiId = "3bc55e298dd1415eb3c5f04e60ed6306"
     }

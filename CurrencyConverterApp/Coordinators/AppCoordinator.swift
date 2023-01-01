@@ -45,7 +45,7 @@ class AppCoordinator: NSObject, Coordinator, UINavigationControllerDelegate {
         let vc = CurrencyRateViewController()
         vc.appCoordinator = self
         
-        vc.viewModel = CurrencyRateViewModel(networkService: APIServiceImpl(), realmStore: RealmManager.shared, locaStore: CurrencyLocalStore.shared)
+        vc.viewModel = CurrencyRateViewModel(networkService: CurrencyServiceImpl(), realmStore: RealmManager(), locaStore: CurrencyLocalStore.shared)
         navigationController.pushViewController(vc, animated: true)
     }
     
@@ -89,9 +89,10 @@ protocol SupportedCurrencyCoordinatorDelegate: AnyObject {
 }
 
 class SupportedCurrencyCoordinator: Coordinator {
-    var childCoordinators: [Coordinator] = []
     weak var parentCoordinator: AppCoordinator?
     weak var delegate: SupportedCurrencyCoordinatorDelegate?
+    
+    var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
     var baseCurrencyCode: String
     
@@ -103,7 +104,7 @@ class SupportedCurrencyCoordinator: Coordinator {
     func start() {
         let vc = CurrencySelectionViewController()
         vc.appCoordinator = self
-        vc.viewModel = CurrencySelectionViewModel(networkService: APIServiceImpl(), realmStore: RealmManager.shared, locaStore: CurrencyLocalStore.shared, baseCurrencyCode: baseCurrencyCode)
+        vc.viewModel = CurrencySelectionViewModel(networkService: CurrencyServiceImpl(), realmStore: RealmManager(), locaStore: CurrencyLocalStore.shared, baseCurrencyCode: baseCurrencyCode)
         navigationController.pushViewController(vc, animated: true)
     }
     
