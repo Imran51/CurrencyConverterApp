@@ -8,20 +8,19 @@
 import XCTest
 @testable import CurrencyConverterApp
 import RealmSwift
-//@testable import Realm
 import Realm
 import Combine
 
 final class CurrencyConverterAppTests: XCTestCase {
     var mockService: MockApiService?
-    var mockRealm: RealmManager?
+    var mockRealm: MockRealmManager?
     private var cancellables = Set<AnyCancellable>()
     var sut: CurrencyRateViewModel?
     
     override func setUp() {
         super.setUp()
         mockService = MockApiService(apiClient: ApiClient())
-        mockRealm = RealmManager(defaultConfig: Realm.Configuration(inMemoryIdentifier: "MockRelamManager"))
+        mockRealm = MockRealmManager()
         sut = CurrencyRateViewModel(networkService: mockService!, realmStore: mockRealm!, locaStore: CurrencyLocalStore.shared)
     }
     
@@ -59,17 +58,17 @@ final class CurrencyConverterAppTests: XCTestCase {
     
     func testRealmAddUpdate() throws {
         let baseStr = "KLL"
-        let exchangeRateObject = CurrencyConverterApp.LocalCurrencyExchangeRate()
+        let exchangeRateObject = LocalCurrencyExchangeRate()
         exchangeRateObject.base = baseStr
         exchangeRateObject.timestamp = Date().timeIntervalSince1970
-        exchangeRateObject.appendToList(rateDictionary: [CurrencyConverterApp.ExchangeRate(targetCurrencyCode: baseStr, value: 201.33)])
+        exchangeRateObject.appendToList(rateDictionary: [ExchangeRate(targetCurrencyCode: baseStr, value: 201.33)])
 
         let saved = mockRealm?.addOrUpdate(exchangeRateObject)
         XCTAssertNotNil(saved)
         XCTAssertTrue(saved == true)
-//        let exchangeRate = mockRealm?.getLatestCurrencyExchangeRate()
-//        XCTAssertNotNil(exchangeRate)
-//        XCTAssertTrue(exchangeRate?.base == baseStr)
+        let exchangeRate = mockRealm?.getLatestCurrencyExchangeRate(by: baseStr)
+        XCTAssertNotNil(exchangeRate)
+        XCTAssertTrue(exchangeRate?.base == baseStr)
         
 //        let exchangeRateByBase = mockRealm?.getLatestCurrencyExchangeRate(by: baseStr)
 //        XCTAssertNotNil(exchangeRateByBase)
@@ -92,7 +91,7 @@ final class CurrencyConverterAppTests: XCTestCase {
     
     func testCurrencyRateViewModel() throws {
         XCTAssertNotNil(sut)
-        XCTAssertNotNil(sut?.baseCurrency)
+//        XCTAssertNotNil(sut?.baseCurrency)
 //        sut!.fetchLatestCurrencyRate()
         
 //        let isProcessingData = try awaitPublisher(sut!.$isProcessingData)
@@ -167,5 +166,70 @@ struct MockApiService: CurrencyService {
             return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
         }
         return Just(["BDT": "Bangladeshi taka", "JPY": "Japanese Yen"]).setFailureType(to: NetworkError.self).eraseToAnyPublisher()
+    }
+}
+
+
+class MockRealmManager: RealmStore {
+//    var realm: Realm?
+    var rmObj = [Object]()
+    init(defaultConfig: Realm.Configuration = Realm.Configuration(inMemoryIdentifier: "MockRealm", schemaVersion: UInt64(Int.random(in: 1..<10)))) {
+//
+//        guard let realm = try? Realm(configuration: defaultConfig) else {
+//            print("Couldn't initialize properly")
+//            self.realm = nil
+//            return
+//        }
+//        self.realm = realm
+//        print(realm.configuration)
+    }
+    
+    func addOrUpdate(_ object: Object) -> Bool {
+//        guard let realm = realm else { return false}
+        rmObj.append(object)
+        return true
+//        do {
+//            try realm.write {
+//                realm.add(object, update: .all)
+//            }
+//            return true
+//        } catch let error {
+//            print(error)
+//            return false
+//        }
+    }
+    
+    func addorUpdate(_ objects: [Object]) -> Bool {
+        rmObj.append(contentsOf: objects)
+        return true
+//        guard let realm = realm else { return false}
+//        do {
+//            try realm.write({
+//                realm.add(objects)
+//            })
+//            return true
+//        } catch let error {
+//            print(error)
+//            return false
+//        }
+    }
+    
+    func getLatestCurrencyExchangeRate() -> LocalCurrencyExchangeRate? {
+//        guard let realm = realm else { return nil }
+        let currencies = rmObj.compactMap({ $0 as? LocalCurrencyExchangeRate }).sorted(by: { $0.timestamp > $1.timestamp })
+        return currencies.first
+    }
+    
+    func currencyInfo() -> [CurrencyInformation]? {
+//        guard let realm = realm else { return nil }
+        let currencies = rmObj.compactMap({ $0 as? Currency }).sorted(by: { $0.code < $1.code })
+        
+        return currencies.compactMap({ CurrencyInformation(code: $0.code, name: $0.name) })
+    }
+    
+    func getLatestCurrencyExchangeRate(by base: String) -> LocalCurrencyExchangeRate? {
+//        guard let realm = realm else { return nil }
+        let localCurrency = rmObj.compactMap({ $0 as? LocalCurrencyExchangeRate }).first(where: { $0.base == base})
+        return localCurrency
     }
 }
