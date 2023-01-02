@@ -87,7 +87,7 @@ final class CurrencyConverterAppTests: XCTestCase {
         let sut = try XCTUnwrap(sut)
         let minBefore = Calendar.current.date(byAdding: .minute, value: -31, to: Date())!
         let exp = expectation(description: "Fetch latest exchangeRate")
-        sut.currencyLocalPreference.set(value: minBefore, for: .currenciesFetchedTimestamp)
+        sut.currencyLocalPreference.set(value: minBefore, for: .currencyExchangeRateFetched)
         sut.fetchLatestCurrencyRate()
         XCTAssertTrue(sut.isDataNeedsToRefresh(for: .currencyExchangeRateFetched))
         

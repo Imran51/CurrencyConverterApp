@@ -19,8 +19,9 @@ final class CurrencyExchangeRateViewModel {
     
     private let networkService: CurrencyService
     private let realmStore: RealmStore
-    private let currencyLocalPreference: CurrencyLocalStoreProtocol
     private var cancellables = Set<AnyCancellable>()
+    
+    let currencyLocalPreference: CurrencyLocalStoreProtocol
     var exchangeRateMap = [String: Double]()
     
     init(networkService: CurrencyService, realmStore: RealmStore, locaStore: CurrencyLocalStoreProtocol) {
