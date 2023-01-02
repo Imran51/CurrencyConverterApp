@@ -44,7 +44,7 @@ final class CurrencyConverterAppTests: XCTestCase {
         XCTAssertTrue(currencyJSONRequestWithBasePath.url?.absoluteString == latestjsonPathWithBase)
     }
     
-    func testFetchLatestCurrencies() throws {
+    func testFetchLatestExchangeRate() throws {
         let response = try awaitPublisher(mockService!.fetchLatestCurrencies(currencyRequest: .latestCurrencies(base: "USD")))
         XCTAssertEqual(response.base, "USD")
         XCTAssertTrue(response.rates.isEmpty == false)
@@ -85,12 +85,12 @@ final class CurrencyConverterAppTests: XCTestCase {
     
     func testFetchCurrencyExchangeRate() throws {
         let sut = try XCTUnwrap(sut)
-        let minBefore = Calendar.current.date(byAdding: .minute, value: -31, to: Date())!
-        let exp = expectation(description: "Fetch latest exchangeRate")
-        sut.currencyLocalPreference.set(value: minBefore, for: .currencyExchangeRateFetched)
+        let lastFectingTime = Calendar.current.date(byAdding: .minute, value: -31, to: Date())!
+        
+        sut.currencyLocalPreference.set(value: lastFectingTime, for: .currencyExchangeRateFetched)
         sut.fetchLatestCurrencyRate()
         XCTAssertTrue(sut.isDataNeedsToRefresh(for: .currencyExchangeRateFetched))
-        
+        let exp = expectation(description: "Fetch latest exchangeRate")
         sut.exchangeRate.sink(receiveValue: { rates in
             guard !rates.isEmpty else { return }
             XCTAssertTrue(rates.count > 0)

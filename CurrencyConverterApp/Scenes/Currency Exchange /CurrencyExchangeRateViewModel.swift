@@ -45,7 +45,7 @@ final class CurrencyExchangeRateViewModel {
     }
     
     func isDataNeedsToRefresh(for localStoreKey: DefaultsKey) -> Bool {
-        guard let date: Date = currencyLocalPreference.get(for: localStoreKey)  else { return false }
+        guard let date: Date = currencyLocalPreference.get(for: localStoreKey)  else { return true }
         let is30MinCrossed = Date() > date + 30 * 60
         return is30MinCrossed
     }
