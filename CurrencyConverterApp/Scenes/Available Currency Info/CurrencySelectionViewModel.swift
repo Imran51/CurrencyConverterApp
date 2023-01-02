@@ -9,48 +9,52 @@ import Foundation
 import Combine
 
 final class CurrencySelectionViewModel {
-    @Published var availableCurrencies = [CurrencyInfo]()
-    @Published var currencyFetchingError: NetworkError? = nil
-    @Published var isProcessingData: Bool? = nil
+    var supportedCountryCurrencies = CurrentValueSubject<[CurrencyInformation], Never>([])
+    var fetchingError = CurrentValueSubject<NetworkError?, Never>(nil)
+    var isDataProcessing = CurrentValueSubject<Bool?, Never>(nil)
     
     var viewModel: CurrencySelectionViewModel?
     private let networkService: CurrencyService
     private let realmStore: RealmStore
-    private let localUserDefaults: CurrencyLocalStoreProtocol
+    private let currencyLocalPreference: CurrencyLocalStoreProtocol
     private var cancellables = Set<AnyCancellable>()
     var baseCurrency: String
     
-    init(networkService: CurrencyService, realmStore: RealmStore, locaStore: CurrencyLocalStoreProtocol, baseCurrencyCode: String) {
+    init(networkService: CurrencyService, realmStore: RealmStore, localStore: CurrencyLocalStoreProtocol, baseCurrencyCode: String) {
         self.networkService = networkService
         self.realmStore = realmStore
-        self.localUserDefaults = locaStore
+        self.currencyLocalPreference = localStore
         baseCurrency = baseCurrencyCode
     }
     
-    func fetchAvailableCurrencies() {
-        isProcessingData = true
-        if let date: Date = localUserDefaults.get(for: .fetchedTimestamp), Date() < date + 30 * 60 {
-            isProcessingData = false
+    func fetchSupportedCurrencies() {
+        isDataProcessing.send(true)
+        if let date: Date = currencyLocalPreference.get(for: .fetchedTimestamp), Date() < date + 30 * 60 {
+            isDataProcessing.send(false)
             guard let currencyInfo = realmStore.currencyInfo(), !currencyInfo.isEmpty else {
-                currencyFetchingError = .unknown("Couldn't fetch data from local relam store")
+                fetchingError.send(.unknown("Couldn't fetch data from local relam store"))
                 return
             }
-            availableCurrencies = currencyInfo
+            supportedCountryCurrencies.send(currencyInfo)
         } else {
             networkService.getCurrencies(currencyRequest: .currencies)
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] result in
                     guard let self = self else { return }
-                    self.isProcessingData = false
+                    self.isDataProcessing.send(false)
                     switch result {
                     case .failure(let error):
-                        self.currencyFetchingError = error
+                        self.fetchingError.send(error)
                     case .finished:
                         print("Success")
                     }
                 } receiveValue: { [weak self] availableCurrencyList in
                     guard let self = self else { return }
-                    self.availableCurrencies = availableCurrencyList.compactMap { CurrencyInfo(code: $0.key, name: $0.value) }.sorted(by: { $0.code < $1.code })
+                    self.supportedCountryCurrencies.send(
+                        availableCurrencyList
+                            .compactMap { CurrencyInformation(code: $0.key, name: $0.value) }
+                            .sorted(by: { $0.code < $1.code })
+                    )
                     var currencyList = [Currency]()
                     availableCurrencyList.forEach {
                         let currency = Currency()
@@ -58,7 +62,7 @@ final class CurrencySelectionViewModel {
                         currency.name = $0.value
                         currencyList.append(currency)
                     }
-                    self.localUserDefaults.set(value: Date(), for: .fetchedTimestamp)
+                    self.currencyLocalPreference.set(value: Date(), for: .fetchedTimestamp)
                     self.realmStore.addorUpdate(currencyList)
                 }
                 .store(in: &cancellables)

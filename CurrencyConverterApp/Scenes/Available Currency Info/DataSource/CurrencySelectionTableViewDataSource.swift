@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-final class TableDataSource: UITableViewDiffableDataSource<Int, CurrencyInfo> {
+final class TableDataSource: UITableViewDiffableDataSource<Int, CurrencyInformation> {
     init(_ tableView: UITableView, baseCurrency: String) {
         super.init(tableView: tableView) { tableView, indexPath, item in
             let cell = tableView.dequeueReusableCell(
@@ -21,7 +21,7 @@ final class TableDataSource: UITableViewDiffableDataSource<Int, CurrencyInfo> {
         }
     }
     
-    func reload(_ data: [CurrencyInfo], animated: Bool = false) {
+    func reload(_ data: [CurrencyInformation], animated: Bool = false) {
         var snapShot = snapshot()
         snapShot.deleteAllItems()
         snapShot.appendSections([0])

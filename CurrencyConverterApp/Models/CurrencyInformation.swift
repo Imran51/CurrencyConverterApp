@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CurrencyInfo: Hashable {
+struct CurrencyInformation: Hashable {
     var code: String
     var name: String
     
@@ -17,8 +17,8 @@ struct CurrencyInfo: Hashable {
     }
 }
 
-extension CurrencyInfo: Equatable {
-    static func == (lhs: CurrencyInfo, rhs: CurrencyInfo) -> Bool {
+extension CurrencyInformation: Equatable {
+    static func == (lhs: CurrencyInformation, rhs: CurrencyInformation) -> Bool {
         lhs.code == rhs.code && lhs.name == rhs.name
     }
 }

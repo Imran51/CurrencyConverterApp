@@ -25,7 +25,7 @@ extension Coordinator {
 }
 
 protocol AppCoordinatorDelegate: AnyObject {
-    func didSelectedCurrency(info: CurrencyInfo)
+    func didSelectedCurrency(info: CurrencyInformation)
 }
 
 
@@ -79,13 +79,13 @@ class AppCoordinator: NSObject, Coordinator, UINavigationControllerDelegate {
 }
 
 extension AppCoordinator: SupportedCurrencyCoordinatorDelegate {
-    func didSelectCurrency(info: CurrencyInfo) {
+    func didSelectCurrency(info: CurrencyInformation) {
         delegate?.didSelectedCurrency(info: info)
     }
 }
 
 protocol SupportedCurrencyCoordinatorDelegate: AnyObject {
-    func didSelectCurrency(info: CurrencyInfo)
+    func didSelectCurrency(info: CurrencyInformation)
 }
 
 class SupportedCurrencyCoordinator: Coordinator {
@@ -104,7 +104,7 @@ class SupportedCurrencyCoordinator: Coordinator {
     func start() {
         let vc = CurrencySelectionViewController()
         vc.appCoordinator = self
-        vc.viewModel = CurrencySelectionViewModel(networkService: CurrencyServiceImpl(), realmStore: RealmManager(), locaStore: CurrencyLocalStore.shared, baseCurrencyCode: baseCurrencyCode)
+        vc.viewModel = CurrencySelectionViewModel(networkService: CurrencyServiceImpl(), realmStore: RealmManager(), localStore: CurrencyLocalStore.shared, baseCurrencyCode: baseCurrencyCode)
         navigationController.pushViewController(vc, animated: true)
     }
     
@@ -112,7 +112,7 @@ class SupportedCurrencyCoordinator: Coordinator {
         parentCoordinator?.childDidFinish(self)
     }
     
-    func didFinishSelection(_ currencyInfo: CurrencyInfo) {
+    func didFinishSelection(_ currencyInfo: CurrencyInformation) {
         navigationController.popViewController(animated: true)
         delegate?.didSelectCurrency(info: currencyInfo)
     }

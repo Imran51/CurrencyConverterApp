@@ -38,7 +38,7 @@ class CurrencyRateViewController: UIViewController {
         textField.layer.masksToBounds = true
         textField.layer.borderColor = UIColor.quaternaryLabel.cgColor
         textField.layer.borderWidth = 1
-        textField.layer.cornerRadius = 20
+        textField.layer.cornerRadius = 18
         
         return textField
     }()
@@ -127,6 +127,7 @@ class CurrencyRateViewController: UIViewController {
     private var dataSource: CurrencyRateCollectionDataSource?
     private var cancellables = Set<AnyCancellable>()
     private var isFromButtonTapped = false
+    let nc = NotificationCenter.default
     
     private func createCollectionViewLayout() -> UICollectionViewLayout {
         let fraction: CGFloat = 1 / 2.1
@@ -160,17 +161,35 @@ class CurrencyRateViewController: UIViewController {
         
         dataSource = CurrencyRateCollectionDataSource(collectionView)
         
-        viewModel?.exchangeRate.sink(receiveCompletion: { [weak self] res in
-            guard let self = self else { return }
-            switch res {
-            case .failure(let error):
-                self.showErrorAlert(error)
-            case .finished:
-                print("finished.")
-            }
-        }, receiveValue: { [weak self] exchangeRates in
+        observeViewModelDataChanges()
+        viewModel?.fetchLatestCurrencyRate()
+        
+        appCoordinator?.delegate = self
+        
+        
+        nc.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .current) {[weak self] _ in
+            self?.viewModel?.fetchLatestCurrencyRate()
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        nc.removeObserver(self)
+    }
+    
+    private func observeViewModelDataChanges() {
+        viewModel?.exchangeRate.sink(receiveCompletion: { _ in }, receiveValue: { [weak self] exchangeRates in
             guard let self = self else { return }
             self.dataSource?.update(exchangeRates)
+        })
+        .store(in: &cancellables)
+        
+        viewModel?.dataFetchingError.sink(receiveValue: {[weak self] error in
+            guard let self = self, let error = error else { return  }
+            let retryAction = UIAlertAction(title: "Retry", style: .default) {_ in
+                self.viewModel?.fetchLatestCurrencyRate()
+            }
+            self.showErrorAlert(error, actions: [retryAction])
         })
         .store(in: &cancellables)
         
@@ -195,11 +214,12 @@ class CurrencyRateViewController: UIViewController {
         }).store(in: &cancellables)
         
         viewModel?.isProcessingData.sink(receiveValue: {[weak self] toggle in
-            self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle)
+            guard let self = self else {
+                return
+            }
+            self.appCoordinator?.showLoadingIndicatorView(toggle: toggle ?? true)
         }).store(in: &cancellables)
         
-        viewModel?.fetchLatestCurrencyRate()
-        appCoordinator?.delegate = self
     }
     
     private func setupUI() {
@@ -270,7 +290,7 @@ extension CurrencyRateViewController: UITextFieldDelegate {
 extension CurrencyRateViewController: AlertDisplayable {  }
 
 extension CurrencyRateViewController: AppCoordinatorDelegate {
-    func didSelectedCurrency(info: CurrencyInfo) {
+    func didSelectedCurrency(info: CurrencyInformation) {
         guard let viewModel = viewModel else {
             return
         }

@@ -17,7 +17,7 @@ protocol RealmStore: AnyObject {
     
     func getLatestCurrencyExchangeRate() -> LocalCurrencyExchangeRate?
     
-    func currencyInfo() -> [CurrencyInfo]?
+    func currencyInfo() -> [CurrencyInformation]?
     
     func getLatestCurrencyExchangeRate(by base: String) -> LocalCurrencyExchangeRate?
 }
@@ -41,11 +41,11 @@ class RealmManager: RealmStore {
         return localCurrency
     }
     
-    func currencyInfo() -> [CurrencyInfo]? {
+    func currencyInfo() -> [CurrencyInformation]? {
         guard let realm = realm else { return nil }
         let currencies = realm.objects(Currency.self).sorted(byKeyPath: "code", ascending: true)
         
-        return currencies.compactMap({ CurrencyInfo(code: $0.code, name: $0.name) })
+        return currencies.compactMap({ CurrencyInformation(code: $0.code, name: $0.name) })
     }
     
     func addOrUpdate(_ object: Object) -> Bool {

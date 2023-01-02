@@ -76,7 +76,7 @@ class CurrencySelectionTableViewCell: UITableViewCell {
         currencyCountryNameLabel.text = nil
     }
     
-    func configure(currencyInfo: CurrencyInfo) {
+    func configure(currencyInfo: CurrencyInformation) {
         currencyCodeLabel.text = currencyInfo.code
         currencyCountryNameLabel.text = currencyInfo.name
         currencyCountryNameLabel.sizeToFit()

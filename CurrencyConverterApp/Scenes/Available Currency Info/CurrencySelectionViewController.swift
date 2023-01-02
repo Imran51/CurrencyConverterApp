@@ -12,6 +12,10 @@ class CurrencySelectionViewController: UIViewController {
     weak var appCoordinator: SupportedCurrencyCoordinator?
     var viewModel: CurrencySelectionViewModel?
     
+    deinit {
+        print("called...")
+    }
+    
     private let selectionTableview: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -46,26 +50,34 @@ class CurrencySelectionViewController: UIViewController {
         
         setupUIAndConstraint()
         
-        viewModel?.$availableCurrencies
-            .sink(receiveValue: {[weak self] listInfo in
-                if !listInfo.isEmpty {
-                    self?.dataSource?.reload(listInfo)
+        
+        observeViewModelValueChanges()
+        viewModel?.fetchSupportedCurrencies()
+    }
+    
+    private func observeViewModelValueChanges() {
+        viewModel?.supportedCountryCurrencies
+            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] listInfo in
+                guard let self = self, !listInfo.isEmpty else {
+                    return
                 }
-        })
+                self.dataSource?.reload(listInfo)
+            })
         .store(in: &cancellables)
         
-        viewModel?.$currencyFetchingError.sink(receiveValue: { [weak self] error in
-            guard let self = self, let error = error else { return }
-            self.showErrorAlert(error)
+        viewModel?.fetchingError.sink(receiveValue: {[weak self] error in
+            guard let self = self, let error = error else { return  }
+            let retryAction = UIAlertAction(title: "Retry", style: .default) {_ in
+                self.viewModel?.fetchSupportedCurrencies()
+            }
+            self.showErrorAlert(error, actions: [retryAction])
         })
         .store(in: &cancellables)
+
         
-        self.appCoordinator?.showLoadingIndicatorView(toggle: true)
-        viewModel?.$isProcessingData.sink(receiveValue: {[weak self] toggle in
+        viewModel?.isDataProcessing.sink(receiveValue: {[weak self] toggle in
             self?.appCoordinator?.showLoadingIndicatorView(toggle: toggle ?? true)
         }).store(in: &cancellables)
-        
-        viewModel?.fetchAvailableCurrencies()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -88,7 +100,7 @@ class CurrencySelectionViewController: UIViewController {
 extension CurrencySelectionViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
-        appCoordinator?.didFinishSelection(CurrencyInfo(code: item.code, name: item.name))
+        appCoordinator?.didFinishSelection(CurrencyInformation(code: item.code, name: item.name))
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
