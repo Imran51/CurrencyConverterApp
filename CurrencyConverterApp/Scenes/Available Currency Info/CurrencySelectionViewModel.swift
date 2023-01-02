@@ -29,7 +29,7 @@ final class CurrencySelectionViewModel {
     
     func fetchSupportedCurrencies() {
         isDataProcessing.send(true)
-        if let date: Date = currencyLocalPreference.get(for: .fetchedTimestamp), Date() < date + 30 * 60 {
+        if let date: Date = currencyLocalPreference.get(for: .supportedCurrencyFetched), Date() < date + 30 * 60 {
             isDataProcessing.send(false)
             guard let currencyInfo = realmStore.currencyInfo(), !currencyInfo.isEmpty else {
                 fetchingError.send(.unknown("Couldn't fetch data from local relam store"))
@@ -62,7 +62,7 @@ final class CurrencySelectionViewModel {
                         currency.name = $0.value
                         currencyList.append(currency)
                     }
-                    self.currencyLocalPreference.set(value: Date(), for: .fetchedTimestamp)
+                    self.currencyLocalPreference.set(value: Date(), for: .supportedCurrencyFetched)
                     self.realmStore.addorUpdate(currencyList)
                 }
                 .store(in: &cancellables)

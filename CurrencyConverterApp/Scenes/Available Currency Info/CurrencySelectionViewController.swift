@@ -97,6 +97,7 @@ class CurrencySelectionViewController: UIViewController {
     }
 }
 
+
 extension CurrencySelectionViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
@@ -107,5 +108,6 @@ extension CurrencySelectionViewController: UITableViewDelegate {
         70
     }
 }
+
 
 extension CurrencySelectionViewController: AlertDisplayable {}

@@ -8,9 +8,9 @@
 import UIKit
 import Combine
 
-class CurrencyRateViewController: UIViewController {
+class CurrencyExchangeRateViewController: UIViewController {
     weak var appCoordinator: AppCoordinator?
-    var viewModel: CurrencyRateViewModel?
+    var viewModel: CurrencyExchangeRateViewModel?
     
     private lazy var collectionView: UICollectionView = {
         let layout = createCollectionViewLayout()
@@ -124,7 +124,7 @@ class CurrencyRateViewController: UIViewController {
         return stack
     }()
     
-    private var dataSource: CurrencyRateCollectionDataSource?
+    private var dataSource: CurrencyRateExchangeCollectionDataSource?
     private var cancellables = Set<AnyCancellable>()
     private var isFromButtonTapped = false
     let nc = NotificationCenter.default
@@ -132,22 +132,18 @@ class CurrencyRateViewController: UIViewController {
     private func createCollectionViewLayout() -> UICollectionViewLayout {
         let fraction: CGFloat = 1 / 2.1
         
-        // Item
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(fraction), heightDimension: .fractionalHeight(1))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
-        // Group
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(90))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         group.interItemSpacing = .fixed(5)
-        // Section
+        
         let section = NSCollectionLayoutSection(group: group)
         let inset: CGFloat = 2.5
         
-        // after item declaration…
         item.contentInsets = NSDirectionalEdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset)
         
-        // after section delcaration…
         section.contentInsets = NSDirectionalEdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset)
         section.interGroupSpacing = 5
         
@@ -159,7 +155,7 @@ class CurrencyRateViewController: UIViewController {
         view.backgroundColor = .systemBackground
         setupUI()
         
-        dataSource = CurrencyRateCollectionDataSource(collectionView)
+        dataSource = CurrencyRateExchangeCollectionDataSource(collectionView)
         
         observeViewModelDataChanges()
         viewModel?.fetchLatestCurrencyRate()
@@ -272,14 +268,15 @@ class CurrencyRateViewController: UIViewController {
     }
 }
 
-extension CurrencyRateViewController: UITextFieldDelegate {
+
+extension CurrencyExchangeRateViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
     
     func textFieldDidChangeSelection(_ textField: UITextField) {
-        viewModel?.changeCurrentRate(for: textField.text ?? "1")
+        viewModel?.calculateCurrentExchangeRate(for: textField.text ?? "1")
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
@@ -287,9 +284,10 @@ extension CurrencyRateViewController: UITextFieldDelegate {
     }
 }
 
-extension CurrencyRateViewController: AlertDisplayable {  }
+extension CurrencyExchangeRateViewController: AlertDisplayable {  }
 
-extension CurrencyRateViewController: AppCoordinatorDelegate {
+
+extension CurrencyExchangeRateViewController: AppCoordinatorDelegate {
     func didSelectedCurrency(info: CurrencyInformation) {
         guard let viewModel = viewModel else {
             return

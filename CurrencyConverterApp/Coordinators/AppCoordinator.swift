@@ -42,10 +42,10 @@ class AppCoordinator: NSObject, Coordinator, UINavigationControllerDelegate {
     
     func start() {
         navigationController.delegate = self
-        let vc = CurrencyRateViewController()
+        let vc = CurrencyExchangeRateViewController()
         vc.appCoordinator = self
         
-        vc.viewModel = CurrencyRateViewModel(networkService: CurrencyServiceImpl(), realmStore: RealmManager(), locaStore: CurrencyLocalStore.shared)
+        vc.viewModel = CurrencyExchangeRateViewModel(networkService: CurrencyServiceImpl(), realmStore: RealmManager(), locaStore: CurrencyLocalStore.shared)
         navigationController.pushViewController(vc, animated: true)
     }
     

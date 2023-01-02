@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-final class CurrencyRateCollectionDataSource: UICollectionViewDiffableDataSource<Int, ExchangeRate> {
+final class CurrencyRateExchangeCollectionDataSource: UICollectionViewDiffableDataSource<Int, ExchangeRate> {
     init(_ collectionView: UICollectionView) {
         super.init(collectionView: collectionView) { collectionView, indexPath, item in
             let cell = collectionView.dequeueReusableCell(

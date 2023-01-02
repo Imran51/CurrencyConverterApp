@@ -20,10 +20,9 @@ class CurrencySelectionTableViewCell: UITableViewCell {
     private let currencyCountryNameLabel: UILabel = {
         let label = UILabel()
         label.text = "0.00"
-//        label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .left
         label.numberOfLines = 0
-
+        
         return label
     }()
     
@@ -81,5 +80,4 @@ class CurrencySelectionTableViewCell: UITableViewCell {
         currencyCountryNameLabel.text = currencyInfo.name
         currencyCountryNameLabel.sizeToFit()
     }
-
 }
