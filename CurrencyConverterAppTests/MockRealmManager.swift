@@ -27,8 +27,8 @@ class MockRealmManager: RealmStore {
     }
     
     func currencyInfo() -> [CurrencyInformation]? {
-        let c = relamObject.compactMap{ $0 as? Currency }.sorted(by: { $0.code < $1.code })
-        return c.map({CurrencyInformation(code: $0.code, name: $0.name)})
+        let info = relamObject.compactMap{ $0 as? Currency }.sorted(by: { $0.code < $1.code })
+        return info.map({CurrencyInformation(code: $0.code, name: $0.name)})
     }
     
     func getLatestCurrencyExchangeRate() -> LocalCurrencyExchangeRate? {

@@ -38,7 +38,7 @@ struct MockApiService: CurrencyService {
 //        return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
     }
     
-    func getCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<[String : String], NetworkError> {
+    func getSupportedCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<[String : String], NetworkError> {
         guard let _ = try? currencyRequest.asURLRequest() else {
             return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
         }

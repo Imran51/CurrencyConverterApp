@@ -46,7 +46,7 @@ struct CurrencyServiceImpl: CurrencyService {
         return apiClient.make(request: urlRequest)
     }
     
-    func getCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<[String : String], NetworkError> {
+    func getSupportedCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<[String : String], NetworkError> {
         guard let urlRequest = try? currencyRequest.asURLRequest() else {
             return Fail(error: NetworkError.invalidURL).eraseToAnyPublisher()
         }

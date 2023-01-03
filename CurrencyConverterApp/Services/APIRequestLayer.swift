@@ -10,7 +10,7 @@ import Combine
 
 protocol CurrencyService {
     func fetchLatestCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<LatestCurrencyExchangeRateInfo, NetworkError>
-    func getCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<[String:String], NetworkError>
+    func getSupportedCurrencies(currencyRequest: CurrencyRequestLayer) -> AnyPublisher<[String:String], NetworkError>
 }
 
 struct ErrorInfo: Decodable {

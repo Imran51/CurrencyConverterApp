@@ -9,13 +9,11 @@ import Foundation
 import Combine
 
 final class CurrencyExchangeRateViewModel {
-    var exchangeRate = CurrentValueSubject<[ExchangeRate], Never>([])
+    var exchangeRateList = CurrentValueSubject<[ExchangeRate], Never>([])
     var dataFetchingError = CurrentValueSubject<NetworkError?, Never>(nil)
-    var fromBaseCurrency = CurrentValueSubject<String, Never>("USD")
-    var toBaseCurrency = CurrentValueSubject<String, Never>("BDT")
+    var baseCurrency = CurrentValueSubject<(from:String,to:String), Never>((from: "USD", to: "BDT"))
     var isProcessingData = CurrentValueSubject<Bool?, Never>(nil)
-    var fromExchangeRate = CurrentValueSubject<String, Never>("1.000 USD")
-    var toExchangeRate = CurrentValueSubject<String, Never>("102.229 BDT")
+    var fromToExchangeRate = CurrentValueSubject<(from:String,to:String), Never>((from: "1.00 USD", to: "102.229 BDT"))
     
     private let networkService: CurrencyService
     private let realmStore: RealmStore
@@ -35,7 +33,7 @@ final class CurrencyExchangeRateViewModel {
         if isDataNeedsToRefresh(for: .currencyExchangeRateFetched)  {
             fetchCurrency()
         } else {
-            guard let fetchedLastCurrency = realmStore.getLatestCurrencyExchangeRate(by: fromBaseCurrency.value) else {
+            guard let fetchedLastCurrency = realmStore.getLatestCurrencyExchangeRate(by: baseCurrency.value.from) else {
                 dataFetchingError.send(.unknown("Couldn't found any data"))
                 isProcessingData.send(false)
                 return
@@ -50,14 +48,19 @@ final class CurrencyExchangeRateViewModel {
         return is30MinCrossed
     }
     
-    func exchangeCurrency(forAmount amount: Double = 1,fromBase: String, toBase: String) {
+    func exchangeCurrency(
+        forAmount amount: Double = 1,
+        fromBase: String,
+        toBase: String
+    ) {
+        
         isProcessingData.send(true)
         var fromBase = fromBase
         var toBase = toBase
         
         if fromBase == toBase  {
-            fromBase = toBaseCurrency.value
-            toBase = fromBaseCurrency.value
+            fromBase = baseCurrency.value.from
+            toBase = baseCurrency.value.to
         }
         
         if let fetchedLastCurrency = realmStore.getLatestCurrencyExchangeRate(by: fromBase), isDataNeedsToRefresh(for: .currencyExchangeRateFetched) {
@@ -69,13 +72,16 @@ final class CurrencyExchangeRateViewModel {
         }
     }
     
-    private func setDisplableExchangeRate(for localCurrencyExchangeRate: LocalCurrencyExchangeRate, with amount: Double) {
+    private func setDisplableExchangeRate(
+        for localCurrencyExchangeRate: LocalCurrencyExchangeRate,
+        with amount: Double
+    ) {
         localCurrencyExchangeRate.rates.forEach({ exchangeRateMap[$0.key] = $0.val })
         
         setFromAndToExchangeRate(for: amount)
         
-        exchangeRate.send(
-            exchangeValueBasedOn(baseCode: fromBaseCurrency.value)
+        exchangeRateList.send(
+            exchangeValueBasedOn(baseCode: baseCurrency.value.from)
                 .sorted(by: { $0.targetCurrencyCode < $1.targetCurrencyCode })
                 .map { ExchangeRate(
                     targetCurrencyCode: $0.targetCurrencyCode,
@@ -86,7 +92,11 @@ final class CurrencyExchangeRateViewModel {
         isProcessingData.send(false)
     }
     
-    private func fetchCurrency(fromBase: String? = nil, toBase: String? = nil, amount: Double = 1) {
+    private func fetchCurrency(
+        fromBase: String? = nil,
+        toBase: String? = nil,
+        amount: Double = 1
+    ) {
         networkService
             .fetchLatestCurrencies(currencyRequest: CurrencyRequestLayer
                 .latestCurrencies(base: nil))
@@ -108,9 +118,9 @@ final class CurrencyExchangeRateViewModel {
                     baseCode: fromBase
                 ).sorted(by: { $0.targetCurrencyCode < $1.targetCurrencyCode })
                 
-                self.setFromAndToBaseCurrency(from: fromBase ?? latestCurrencies.base, to: toBase ?? self.toBaseCurrency.value)
+                self.setFromAndToBaseCurrency(from: fromBase ?? latestCurrencies.base, to: toBase ?? self.baseCurrency.value.to)
                 
-                self.exchangeRate.send(exchangeRates.map { ExchangeRate(targetCurrencyCode: $0.targetCurrencyCode, value: $0.value * amount) })
+                self.exchangeRateList.send(exchangeRates.map { ExchangeRate(targetCurrencyCode: $0.targetCurrencyCode, value: $0.value * amount) })
                 
                 
                 self.setFromAndToExchangeRate(for: amount)
@@ -118,7 +128,7 @@ final class CurrencyExchangeRateViewModel {
                 self.currencyLocalPreference.set(value: Date(), for: .currencyExchangeRateFetched)
                 self.storeCurrency(
                     with: exchangeRates,
-                    base: self.fromBaseCurrency.value,
+                    base: self.baseCurrency.value.from,
                     timeStamp: latestCurrencies.timestamp
                 )
             }
@@ -151,13 +161,13 @@ final class CurrencyExchangeRateViewModel {
     }
     
     func displayableExchangeRateStr(val: Double, isFromVal: Bool) -> String {
-        String(format: "%.3f", val) + " " + (isFromVal ? fromBaseCurrency.value : toBaseCurrency.value)
+        String(format: "%.3f", val) + " " + (isFromVal ? baseCurrency.value.from : baseCurrency.value.to)
     }
     
     func calculateCurrentExchangeRate(for input: String) {
         guard !input.isEmpty else {
-            exchangeRate
-                .send(exchangeValueBasedOn(baseCode: fromBaseCurrency.value)
+            exchangeRateList
+                .send(exchangeValueBasedOn(baseCode: baseCurrency.value.from)
                     .sorted(by: { $0.targetCurrencyCode < $1.targetCurrencyCode }))
             resetFromAndToExchangeRate()
             return
@@ -166,7 +176,7 @@ final class CurrencyExchangeRateViewModel {
         var currentExchangeRate = [ExchangeRate]()
         let currVal = Double(input) ?? 1
         
-        exchangeValueBasedOn(baseCode: fromBaseCurrency.value)
+        exchangeValueBasedOn(baseCode: baseCurrency.value.from)
             .sorted(by: { $0.targetCurrencyCode < $1.targetCurrencyCode })
             .forEach { rate in
                 let currVal = Double(input) ?? 1
@@ -176,29 +186,26 @@ final class CurrencyExchangeRateViewModel {
         
         setFromAndToExchangeRate(for: currVal)
         
-        exchangeRate.send(currentExchangeRate)
+        exchangeRateList.send(currentExchangeRate)
     }
     
     func setFromAndToBaseCurrency(from: String, to: String){
-        fromBaseCurrency.send(from)
-        toBaseCurrency.send(to)
+        baseCurrency.send((from: from, to: to))
     }
     
     func resetFromAndToExchangeRate() {
-        let fromBaseRate: Double = 1/(self.exchangeRateMap[self.fromBaseCurrency.value] ?? 1)
-        let toBaseRate: Double = fromBaseRate*(self.exchangeRateMap[self.toBaseCurrency.value] ?? 1)
+        let fromBaseRate: Double = 1/(self.exchangeRateMap[self.baseCurrency.value.from] ?? 1)
+        let toBaseRate: Double = fromBaseRate*(self.exchangeRateMap[self.baseCurrency.value.to] ?? 1)
         let fromBaseCurrencyStr = displayableExchangeRateStr(val: 1, isFromVal: true)
         let toBaseCurrencyStr = displayableExchangeRateStr(val: toBaseRate, isFromVal: false)
-        fromExchangeRate.send(fromBaseCurrencyStr)
-        toExchangeRate.send(toBaseCurrencyStr)
+        fromToExchangeRate.send((from: fromBaseCurrencyStr, to:toBaseCurrencyStr))
     }
     
     func setFromAndToExchangeRate(for amount: Double) {
-        let fromBaseRate: Double = 1/(self.exchangeRateMap[self.fromBaseCurrency.value] ?? 1)
-        let toBaseRate: Double = fromBaseRate*(self.exchangeRateMap[self.toBaseCurrency.value] ?? 1)
+        let fromBaseRate: Double = 1/(self.exchangeRateMap[self.baseCurrency.value.from] ?? 1)
+        let toBaseRate: Double = fromBaseRate*(self.exchangeRateMap[self.baseCurrency.value.to] ?? 1)
         let fromBaseCurrencyStr = displayableExchangeRateStr(val: amount, isFromVal: true)
         let toBaseCurrencyStr = displayableExchangeRateStr(val: toBaseRate*amount, isFromVal: false)
-        fromExchangeRate.send(fromBaseCurrencyStr)
-        toExchangeRate.send(toBaseCurrencyStr)
+        fromToExchangeRate.send((from: fromBaseCurrencyStr, to:toBaseCurrencyStr))
     }
 }

@@ -80,13 +80,13 @@ class CurrencyExchangeRateViewController: UIViewController {
     }
     
     private lazy var currencyPickerFromButton: UIButton = {
-       let button = getButton()
+        let button = getButton()
         button.setTitle("USD", for: .normal)
         return button
     }()
     
     private lazy var currencyPickerToButton: UIButton = {
-       let button = getButton()
+        let button = getButton()
         button.setTitle("BDT", for: .normal)
         return button
     }()
@@ -174,7 +174,7 @@ class CurrencyExchangeRateViewController: UIViewController {
     }
     
     private func observeViewModelDataChanges() {
-        viewModel?.exchangeRate.sink(receiveCompletion: { _ in }, receiveValue: { [weak self] exchangeRates in
+        viewModel?.exchangeRateList.sink(receiveCompletion: { _ in }, receiveValue: { [weak self] exchangeRates in
             guard let self = self else { return }
             self.dataSource?.update(exchangeRates)
         })
@@ -189,24 +189,16 @@ class CurrencyExchangeRateViewController: UIViewController {
         })
         .store(in: &cancellables)
         
-        viewModel?.fromBaseCurrency.sink(receiveValue: { [weak self] text in
+        viewModel?.baseCurrency.sink(receiveValue: { [weak self] value in
             guard let self = self else { return }
-            self.currencyPickerFromButton.setTitle(text, for: .normal)
+            self.currencyPickerFromButton.setTitle(value.from, for: .normal)
+            self.currencyPickerToButton.setTitle(value.to, for: .normal)
         }).store(in: &cancellables)
         
-        viewModel?.toBaseCurrency.sink(receiveValue: { [weak self] text in
+        viewModel?.fromToExchangeRate.sink(receiveValue: { [weak self] value in
             guard let self = self else { return }
-            self.currencyPickerToButton.setTitle(text, for: .normal)
-        }).store(in: &cancellables)
-        
-        viewModel?.fromExchangeRate.sink(receiveValue: { [weak self] text in
-            guard let self = self else { return }
-            self.currentCurrencyFromLabel.text = text
-        }).store(in: &cancellables)
-        
-        viewModel?.toExchangeRate.sink(receiveValue: { [weak self] text in
-            guard let self = self else { return }
-            self.currentCurrencyToLabel.text = text
+            self.currentCurrencyFromLabel.text = value.from
+            self.currentCurrencyToLabel.text = value.to
         }).store(in: &cancellables)
         
         viewModel?.isProcessingData.sink(receiveValue: {[weak self] toggle in
@@ -215,7 +207,6 @@ class CurrencyExchangeRateViewController: UIViewController {
             }
             self.appCoordinator?.showLoadingIndicatorView(toggle: toggle ?? true)
         }).store(in: &cancellables)
-        
     }
     
     private func setupUI() {
@@ -242,12 +233,12 @@ class CurrencyExchangeRateViewController: UIViewController {
     
     @objc func fromButtonTapped(_ sender: UIButton) {
         isFromButtonTapped = true
-        appCoordinator?.showCurrencySelectionViewController(withBaseCurrencyCode: viewModel?.fromBaseCurrency.value ?? "USD")
+        appCoordinator?.showCurrencySelectionViewController(withBaseCurrencyCode: viewModel?.baseCurrency.value.from ?? "USD")
     }
     
     @objc func toButtonTapped(_ sender: UIButton) {
         isFromButtonTapped = false
-        appCoordinator?.showCurrencySelectionViewController(withBaseCurrencyCode: viewModel?.toBaseCurrency.value ?? "BDT")
+        appCoordinator?.showCurrencySelectionViewController(withBaseCurrencyCode: viewModel?.baseCurrency.value.to ?? "BDT")
     }
     
     @objc func dismissKeyboard(_ gesture: UITapGestureRecognizer) {
@@ -278,10 +269,6 @@ extension CurrencyExchangeRateViewController: UITextFieldDelegate {
     func textFieldDidChangeSelection(_ textField: UITextField) {
         viewModel?.calculateCurrentExchangeRate(for: textField.text ?? "1")
     }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        
-    }
 }
 
 extension CurrencyExchangeRateViewController: AlertDisplayable {  }
@@ -293,10 +280,17 @@ extension CurrencyExchangeRateViewController: AppCoordinatorDelegate {
             return
         }
         if isFromButtonTapped {
-            viewModel.exchangeCurrency(forAmount: Double(currenncyInputTextField.text ?? "1") ?? 1, fromBase: info.code, toBase: viewModel.toBaseCurrency.value)
+            viewModel.exchangeCurrency(
+                forAmount: Double(currenncyInputTextField.text ?? "1") ?? 1,
+                fromBase: info.code,
+                toBase: viewModel.baseCurrency.value.to
+            )
         } else {
-            viewModel.exchangeCurrency(forAmount: Double(currenncyInputTextField.text ?? "1") ?? 1, fromBase: viewModel.fromBaseCurrency.value, toBase: info.code)
+            viewModel.exchangeCurrency(
+                forAmount: Double(currenncyInputTextField.text ?? "1") ?? 1,
+                fromBase: viewModel.baseCurrency.value.from,
+                toBase: info.code
+            )
         }
-        
     }
 }
