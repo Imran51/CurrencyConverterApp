@@ -226,7 +226,9 @@ class CurrencyExchangeRateViewController: UIViewController {
         currenncyInputTextField.delegate = self
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard(_:)))
         view.addGestureRecognizer(tapGesture)
+        
         setupConstraint()
+        
         currencyPickerFromButton.addTarget(self, action: #selector(fromButtonTapped(_:)), for: .touchUpInside)
         currencyPickerToButton.addTarget(self, action: #selector(toButtonTapped(_:)), for: .touchUpInside)
     }
@@ -250,7 +252,7 @@ class CurrencyExchangeRateViewController: UIViewController {
             currencyConatinerStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             currencyConatinerStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
             currencyConatinerStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            currencyConatinerStackView.heightAnchor.constraint(equalToConstant: 135),
+            currencyConatinerStackView.heightAnchor.constraint(equalToConstant: 140),
             collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
             collectionView.topAnchor.constraint(equalTo: currencyConatinerStackView.bottomAnchor, constant: 20),
